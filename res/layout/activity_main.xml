@@ -1,7 +1,34 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.cmu.majoritywin.MainActivity"
-    tools:ignore="MergeRootFrame" />
+    android:orientation="vertical" >
+    
+   <Button
+       android:id="@+id/Button_Create_Room"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_gravity="center"
+       android:layout_marginTop="140dp"
+       android:width="145dp"
+       android:text="@string/Text_Create_Room" />
+
+     <Button
+         android:id="@+id/Button_Join_Room"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_gravity="center"
+         android:layout_marginTop="40dp"
+         android:width="145dp"
+         android:text="@string/Text_Join_Room" />
+     
+ 	<Button
+ 	    android:id="@+id/Button_Exit"
+ 	    android:layout_width="wrap_content"
+ 	    android:layout_height="wrap_content"
+ 	    android:layout_gravity="center"
+ 	    android:layout_marginLeft="100dp"
+ 	    android:layout_marginTop="100dp"
+ 	    android:text="@string/Text_Exit" />
+
+</LinearLayout>
