@@ -8,6 +8,10 @@
     <string name="Text_Exit">Exit</string>
     <string name="title_activity_create_room">CreateRoomActivity</string>
     <string name="Text_Enter">Enter</string>
-    <string name="Text_Cancel_Create">Cancel</string>
-	<string name="Text_Room_Number">Room Number:</string>
+    <string name="Text_Room_Number">Room Number:</string>
+    <string name="Text_Main">Main</string>
+    <string name="title_activity_enter_room">EnterRoomActivity</string>
+    <string name="Text_Participant_Number">Participants:0/10</string>
+    <string name="Text_Begin_Vote">Begin Vote</string>
+	<string name="Text_Wait">Waiting...</string>
 </resources>

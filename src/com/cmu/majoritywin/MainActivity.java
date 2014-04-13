@@ -29,6 +29,9 @@ public class MainActivity extends ActionBarActivity implements OnClickListener{
 		button_exit = (Button) this.findViewById(R.id.Button_Exit);
 		button_create_room = (Button) this.findViewById(R.id.Button_Create_Room);
 		button_join_room = (Button) this.findViewById(R.id.Button_Join_Room);
+		button_exit.setOnClickListener(this);
+		button_create_room.setOnClickListener(this);
+		button_join_room.setOnClickListener(this);
 	}
 
 	@Override
@@ -46,7 +49,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener{
 			
 			break;
 		default:
-			Log.i(Tag, "Unexpected Error");
+			Log.e(Tag, "Unexpected Error");
 			finish();
 			break;
 		}

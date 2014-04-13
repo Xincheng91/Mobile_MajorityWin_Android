@@ -4,6 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -11,39 +15,48 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import android.util.Log;
+
 public class HttpRequestUtils {
 
-	private static HttpClient httpClient;
-	private static String ServerIP = "http://localhost:8080/";
+	private static String Tag = "HttpRequestUtils";
+	private static String ServerIP = "http://128.237.201.11:8080/MajorityWin/";
 
-	public static HttpClient getHttpClientInstance() {
-		if (httpClient == null) {
-			httpClient = new DefaultHttpClient();
-		}
-		return httpClient;
-	}
-
-	public static int getUniqueRoomNumber() throws ClientProtocolException,
+	public static String getUniqueRoomNumber() throws ClientProtocolException,
 			IOException {
+		HttpClient httpClient = new DefaultHttpClient();
 		HttpGet httpGet = new HttpGet(ServerIP + "CreateRoom");
-		HttpResponse response = getHttpClientInstance().execute(httpGet);
+		HttpResponse response = httpClient.execute(httpGet);
 		int code = response.getStatusLine().getStatusCode();
 		if (code == 200) {
 			InputStream is = response.getEntity().getContent();
 			String result = convertStreamToString(is);
-			return Integer.parseInt(result);
-		}else{
+			Log.i(Tag, "result: " + result);
+			return result;
+		} else {
+			Log.e(Tag, "Code:" + code);
+			throw new IllegalStateException("Network Failure");
+		}
+	}
+
+	public static String getParticipants(int roomID) throws ClientProtocolException, IOException {
+		HttpClient httpClient = new DefaultHttpClient();
+		String param = URLEncoder.encode(roomID+"");
+		HttpGet httpGet = new HttpGet(ServerIP + "GetRoomInfo?roomID=" + param);
+		HttpResponse response = httpClient.execute(httpGet);
+		int code = response.getStatusLine().getStatusCode();
+		if (code == 200) {
+			InputStream is = response.getEntity().getContent();
+			String result = convertStreamToString(is);
+			Log.i(Tag, "result: " + result);
+			return result;
+		} else {
+			Log.e(Tag, "Code:" + code);
 			throw new IllegalStateException("Network Failure");
 		}
 	}
 
 	private static String convertStreamToString(InputStream is) {
-		/*
-		 * To convert the InputStream to String we use the
-		 * BufferedReader.readLine() method. We iterate until the BufferedReader
-		 * return null which means there's no more data to read. Each line will
-		 * appended to a StringBuilder and returned as String.
-		 */
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		StringBuilder sb = new StringBuilder();
 
@@ -63,5 +76,4 @@ public class HttpRequestUtils {
 		}
 		return sb.toString();
 	}
-
 }
