@@ -55,6 +55,26 @@ public class HttpRequestUtils {
 			throw new IllegalStateException("Network Failure");
 		}
 	}
+	
+	public static boolean joinRoom(int roomID) throws ClientProtocolException, IOException {
+		HttpClient httpClient = new DefaultHttpClient();
+		String param = URLEncoder.encode(roomID+"");
+		HttpGet httpGet = new HttpGet(ServerIP + "JoinRoom?roomID=" + param);
+		HttpResponse response = httpClient.execute(httpGet);
+		int code = response.getStatusLine().getStatusCode();
+		if (code == 200) {
+			InputStream is = response.getEntity().getContent();
+			String result = convertStreamToString(is);
+			if(result.equals("Success")){
+				return true;
+			}else{
+				return false;
+			}
+		} else {
+			Log.e(Tag, "Code:" + code);
+			throw new IllegalStateException("Network Failure");
+		}
+	}
 
 	private static String convertStreamToString(InputStream is) {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));

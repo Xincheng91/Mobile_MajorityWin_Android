@@ -13,5 +13,7 @@
     <string name="title_activity_enter_room">EnterRoomActivity</string>
     <string name="Text_Participant_Number">Participants:0/10</string>
     <string name="Text_Begin_Vote">Begin Vote</string>
-	<string name="Text_Wait">Waiting...</string>
+    <string name="Text_Wait">Waiting...</string>
+    <string name="title_activity_join_room">JoinRoomActivity</string>
+	 <string name="Text_Input_Room">Input the room number:</string>
 </resources>

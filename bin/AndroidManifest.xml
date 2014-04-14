@@ -32,6 +32,10 @@
             android:name="com.cmu.majoritywin.EnterRoomActivity"
             android:label="@string/title_activity_enter_room" >
         </activity>
+        <activity
+            android:name="com.cmu.majoritywin.JoinRoomActivity"
+            android:label="@string/title_activity_join_room" >
+        </activity>
     </application>
 
 </manifest>

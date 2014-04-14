@@ -46,7 +46,9 @@ public class MainActivity extends ActionBarActivity implements OnClickListener{
 			startActivity(intent);
 			break;
 		case R.id.Button_Join_Room:
-			
+			Intent intent1 = new Intent();
+			intent1.setClassName("com.cmu.majoritywin", "com.cmu.majoritywin.JoinRoomActivity");
+			startActivity(intent1);
 			break;
 		default:
 			Log.e(Tag, "Unexpected Error");
