@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_marginLeft="90dp"
-        android:layout_marginTop="180dp"
+        android:layout_marginTop="30dp"
         android:text="@string/Text_Room_Number" />
      
    <Button
@@ -29,5 +29,19 @@
        android:layout_gravity="center"
        android:layout_marginTop="20dp"
        android:text="@string/Text_Enter" />
+   
+   <TextView
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_gravity="center"
+       android:layout_marginTop="30dp"
+       android:text="@string/Text_Invite_Friends" />
+   
+   <ImageView
+       android:id="@+id/qrCode"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_gravity="center"
+       android:layout_marginTop="50dp" />
    
 </LinearLayout>

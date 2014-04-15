@@ -14,6 +14,8 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,6 +31,7 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 	private Handler handler;
 	private int numberOfParticipants = 0;
 	private int roomID;
+	private ProgressDialog pDialog;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -45,6 +48,8 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 		handler = new Handler(){
 			public void handleMessage(Message msg) {
 				String[] participants = (String[]) msg.obj;
+				int number = participants.length;
+				textview_participants_number.setText(number + "/5");
 				edittext_participants.setText("");
 				for(String p: participants){
 					edittext_participants.append(p+"\n");
@@ -60,7 +65,6 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 			while(true){
 				try {
 					sleep(500);
-					Log.i(Tag, "New thread running");
 					String participants= HttpRequestUtils.getParticipants(roomID);
 					String[] arrayOfParticipants = participants.split(",");
 					if(arrayOfParticipants.length > numberOfParticipants){
@@ -68,13 +72,29 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 						msg.obj = arrayOfParticipants;
 						handler.sendMessage(msg);
 					}
-				} catch (ClientProtocolException e) {
+				}catch (IOException e) {
 					Log.e(Tag, e.toString());
-				} catch (IOException e) {
-					Log.e(Tag, e.toString());
+					Toast.makeText(getApplicationContext(), "Problems with network",
+							Toast.LENGTH_SHORT).show();
 				} catch (InterruptedException e) {
 					Log.e(Tag, e.toString());
+					Toast.makeText(getApplicationContext(), "Problems with network",
+							Toast.LENGTH_SHORT).show();
 				}
+			}
+		}
+	}
+	
+	public class beginVoteThread extends Thread{
+		public void run(){
+			try {
+				if(HttpRequestUtils.startVoting(roomID)){
+					
+				};
+			} catch (IOException e) {
+				Log.e(Tag, e.toString());
+				Toast.makeText(getApplicationContext(), "Problems with network",
+						Toast.LENGTH_SHORT).show();
 			}
 		}
 	}
@@ -86,7 +106,8 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 			finish();
 			break;
 		case R.id.Button_Begin_Vote:
-			
+			new beginVoteThread().start();
+			pDialog = ProgressDialog.show(this, "deciding the leader", "Please wait", true,false);
 			break;
 		default:
 			Log.e(Tag, "Unexpected Error");

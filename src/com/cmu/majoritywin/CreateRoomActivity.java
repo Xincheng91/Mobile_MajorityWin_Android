@@ -5,11 +5,19 @@ import java.io.IOException;
 import org.apache.http.client.ClientProtocolException;
 
 import com.cmu.http.HttpRequestUtils;
+import com.cmu.view.Contents;
+import com.cmu.view.QRCodeEncoder;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
 
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -21,7 +29,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.os.Build;
 
 public class CreateRoomActivity extends ActionBarActivity implements OnClickListener{
@@ -52,23 +62,43 @@ public class CreateRoomActivity extends ActionBarActivity implements OnClickList
 			
 		};
 		new t_getRoomNumber().start();
+		ImageView imageView = (ImageView) findViewById(R.id.qrCode);
+
+		String qrData = "123456";
+		int qrCodeDimention = 500;
+
+		QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(qrData, null,
+		        Contents.Type.TEXT, BarcodeFormat.QR_CODE.toString(), qrCodeDimention);
+
+		try {
+		    Bitmap bitmap = qrCodeEncoder.encodeAsBitmap();
+		    imageView.setImageBitmap(bitmap);
+		} catch (WriterException e) {
+		    e.printStackTrace();
+		    Toast.makeText(this, "Problems with QR Code",
+					Toast.LENGTH_SHORT).show();
+		}
 	}
 	
 	public class t_getRoomNumber extends Thread{
 		public void run() {
 			try {
-				Log.i(Tag, "New thread running");
 				String id = HttpRequestUtils.getUniqueRoomNumber().trim();
-				Log.i(Tag, "The room id:" + id);
 				Message msg = new Message();
 				msg.obj = id;
 				handler.sendMessage(msg);
 			} catch (ClientProtocolException e) {
 				Log.e(Tag, e.toString());
+				Toast.makeText(getApplicationContext(), "Problems with network",
+						Toast.LENGTH_SHORT).show();
 			} catch (IOException e) {
 				Log.e(Tag, e.toString());
+				Toast.makeText(getApplicationContext(), "Problems with network",
+						Toast.LENGTH_SHORT).show();
 			} catch (Exception e) {
 				Log.e(Tag, e.toString());
+				Toast.makeText(getApplicationContext(), "Problems with network",
+						Toast.LENGTH_SHORT).show();
 			}
 		}
 	}
@@ -90,6 +120,8 @@ public class CreateRoomActivity extends ActionBarActivity implements OnClickList
 			break;
 		default:
 			Log.e(Tag, "Unexpected Error");
+			Toast.makeText(getApplicationContext(), "Unexpected Error",
+					Toast.LENGTH_SHORT).show();
 			break;
 		}
 	}
