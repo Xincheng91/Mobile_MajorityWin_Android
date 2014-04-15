@@ -29,9 +29,11 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 	private TextView textview_participants_number;
 	private EditText edittext_participants;
 	private Handler handler;
+	private Handler handlerForCheckingLeader;
 	private int numberOfParticipants = 0;
-	private int roomID;
+	private String roomID;
 	private ProgressDialog pDialog;
+	private String username;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -43,7 +45,8 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 		button_cancle.setOnClickListener(this);
 		button_start_voting.setOnClickListener(this);
 		Intent intent = getIntent();
-		roomID = Integer.parseInt(intent.getExtras().getString("com.cmu.passdata.roomID").trim());
+		roomID = intent.getExtras().getString("com.cmu.passdata.roomID");
+		username = intent.getExtras().getString("com.cmu.passdata.username");
 		
 		handler = new Handler(){
 			public void handleMessage(Message msg) {
@@ -57,6 +60,20 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 				super.handleMessage(msg);
 			}
 		};
+		
+		handlerForCheckingLeader = new Handler(){
+			public void handleMessage(Message msg){
+				int status = (int) msg.obj;
+				pDialog.dismiss();
+				if(status == 1){
+					
+				}else{
+					
+				}
+				super.handleMessage(msg);
+			}
+		};
+		
 		new participantsThread().start();
 	}
 	
@@ -86,15 +103,29 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 	}
 	
 	public class beginVoteThread extends Thread{
+		private boolean flag = false;
 		public void run(){
-			try {
-				if(HttpRequestUtils.startVoting(roomID)){
-					
-				};
-			} catch (IOException e) {
-				Log.e(Tag, e.toString());
-				Toast.makeText(getApplicationContext(), "Problems with network",
-						Toast.LENGTH_SHORT).show();
+			while(true){
+				try {
+					if(!flag){
+						HttpRequestUtils.startVoting(roomID);
+						flag = true;
+					}else{
+						int status = HttpRequestUtils.checkLeader(roomID);
+						//0 represents not leader, 1 represents leader, 2 represents not ready
+						if(status == 2){
+							continue;
+						}else{
+							Message msg = new Message();
+							msg.obj = status;
+							handlerForCheckingLeader.sendMessage(msg);
+						}
+					};
+				} catch (IOException e) {
+					Log.e(Tag, e.toString());
+					Toast.makeText(getApplicationContext(), "Problems with network",
+							Toast.LENGTH_SHORT).show();
+				}
 			}
 		}
 	}
@@ -107,7 +138,7 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 			break;
 		case R.id.Button_Begin_Vote:
 			new beginVoteThread().start();
-			pDialog = ProgressDialog.show(this, "deciding the leader", "Please wait", true,false);
+			pDialog = ProgressDialog.show(this, "server is deciding the leader", "Please wait", true,false);
 			break;
 		default:
 			Log.e(Tag, "Unexpected Error");

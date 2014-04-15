@@ -42,6 +42,8 @@ public class CreateRoomActivity extends ActionBarActivity implements OnClickList
 	private Button button_enter_room;
 	private Handler handler;
 	private String roomID;
+	private String username;
+	private ImageView imageView;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -51,39 +53,41 @@ public class CreateRoomActivity extends ActionBarActivity implements OnClickList
 		button_cancel.setOnClickListener(this);
 		button_enter_room = (Button) this.findViewById(R.id.Button_Enter_Room);
 		button_enter_room.setOnClickListener(this);
+		username = getIntent().getExtras().getString("com.cmu.passdata.username").trim();
+		imageView = (ImageView) findViewById(R.id.qrCode);
+		
 		handler = new Handler(){
 
 			public void handleMessage(Message msg) {
 				String roomNumber = (String) msg.obj;
 				roomID = roomNumber;
 				textview_roomNumber.append(roomNumber);
+				
+				
+				String qrData = roomID;
+				int qrCodeDimention = 500;
+				QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(qrData, null,
+				        Contents.Type.TEXT, BarcodeFormat.QR_CODE.toString(), qrCodeDimention);
+
+				try {
+				    Bitmap bitmap = qrCodeEncoder.encodeAsBitmap();
+				    imageView.setImageBitmap(bitmap);
+				} catch (WriterException e) {
+				    e.printStackTrace();
+				    Toast.makeText(getApplicationContext(), "Problems with QR Code",
+							Toast.LENGTH_SHORT).show();
+				}
 				super.handleMessage(msg);
 			}
 			
 		};
 		new t_getRoomNumber().start();
-		ImageView imageView = (ImageView) findViewById(R.id.qrCode);
-
-		String qrData = "123456";
-		int qrCodeDimention = 500;
-
-		QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(qrData, null,
-		        Contents.Type.TEXT, BarcodeFormat.QR_CODE.toString(), qrCodeDimention);
-
-		try {
-		    Bitmap bitmap = qrCodeEncoder.encodeAsBitmap();
-		    imageView.setImageBitmap(bitmap);
-		} catch (WriterException e) {
-		    e.printStackTrace();
-		    Toast.makeText(this, "Problems with QR Code",
-					Toast.LENGTH_SHORT).show();
-		}
 	}
 	
 	public class t_getRoomNumber extends Thread{
 		public void run() {
 			try {
-				String id = HttpRequestUtils.getUniqueRoomNumber().trim();
+				String id = HttpRequestUtils.createRoom(username).trim();
 				Message msg = new Message();
 				msg.obj = id;
 				handler.sendMessage(msg);
@@ -116,6 +120,7 @@ public class CreateRoomActivity extends ActionBarActivity implements OnClickList
 			Intent intent = new Intent();
 			intent.setClassName("com.cmu.majoritywin", "com.cmu.majoritywin.EnterRoomActivity");
 			intent.putExtra("com.cmu.passdata.roomID", roomID);
+			intent.putExtra("com.cmu.passdata.username", username);
 			startActivity(intent);
 			break;
 		default:

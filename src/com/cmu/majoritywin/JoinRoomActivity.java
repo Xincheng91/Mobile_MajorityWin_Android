@@ -24,6 +24,7 @@ public class JoinRoomActivity extends ActionBarActivity implements
 	private Button button_cancel;
 	private Button button_enter_room;
 	private Button button_scan_qrcode;
+	private String username;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +39,7 @@ public class JoinRoomActivity extends ActionBarActivity implements
 		button_cancel.setOnClickListener(this);
 		button_enter_room.setOnClickListener(this);
 		button_scan_qrcode.setOnClickListener(this);
+		username = getIntent().getExtras().getString("com.cmu.passdata.username").trim();
 	}
 
 	@Override
@@ -48,22 +50,13 @@ public class JoinRoomActivity extends ActionBarActivity implements
 			break;
 		case R.id.Button_Enter_Room:
 			String roomID = edittext_roomNumber.getText().toString();
-			int id = 0;
 			try {
-				id = Integer.parseInt(roomID);
-			} catch (Exception e) {
-				Log.e(Tag, e.toString());
-				Toast.makeText(this, "The room number is not valid",
-						Toast.LENGTH_SHORT).show();
-				return;
-			}
-			try {
-				boolean result = HttpRequestUtils.joinRoom(id);
+				boolean result = HttpRequestUtils.joinRoom(roomID, username);
 				if (result) {
 					Intent intent = new Intent();
 					intent.setClassName("com.cmu.majoritywin",
 							"com.cmu.majoritywin.EnterRoomActivity");
-					intent.putExtra("com.cmu.passdata.roomID", roomID);
+					intent.putExtra("com.cmu.passdata.username", username);
 					startActivity(intent);
 				} else {
 					Toast.makeText(this, "The roomID doesn't exist",

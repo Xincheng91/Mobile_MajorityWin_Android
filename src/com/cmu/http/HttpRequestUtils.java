@@ -22,10 +22,10 @@ public class HttpRequestUtils {
 	private static String Tag = "HttpRequestUtils";
 	private static String ServerIP = "http://128.237.200.74:8080/MajorityWin/";
 
-	public static String getUniqueRoomNumber() throws ClientProtocolException,
+	public static String createRoom(String username) throws ClientProtocolException,
 			IOException {
 		HttpClient httpClient = new DefaultHttpClient();
-		HttpGet httpGet = new HttpGet(ServerIP + "CreateRoom");
+		HttpGet httpGet = new HttpGet(ServerIP + "CreateRoom?username=" + username);
 		HttpResponse response = httpClient.execute(httpGet);
 		int code = response.getStatusLine().getStatusCode();
 		if (code == 200) {
@@ -39,9 +39,9 @@ public class HttpRequestUtils {
 		}
 	}
 
-	public static String getParticipants(int roomID) throws ClientProtocolException, IOException {
+	public static String getParticipants(String roomID) throws ClientProtocolException, IOException {
 		HttpClient httpClient = new DefaultHttpClient();
-		String param = URLEncoder.encode(roomID+"");
+		String param = URLEncoder.encode(roomID);
 		HttpGet httpGet = new HttpGet(ServerIP + "GetRoomInfo?roomID=" + param);
 		HttpResponse response = httpClient.execute(httpGet);
 		int code = response.getStatusLine().getStatusCode();
@@ -56,10 +56,11 @@ public class HttpRequestUtils {
 		}
 	}
 	
-	public static boolean joinRoom(int roomID) throws ClientProtocolException, IOException {
+	public static boolean joinRoom(String roomID, String username) throws ClientProtocolException, IOException {
 		HttpClient httpClient = new DefaultHttpClient();
-		String param = URLEncoder.encode(roomID+"");
-		HttpGet httpGet = new HttpGet(ServerIP + "JoinRoom?roomID=" + param);
+		String param1 = URLEncoder.encode(roomID);
+		String param2 = URLEncoder.encode(username);
+		HttpGet httpGet = new HttpGet(ServerIP + "JoinRoom?roomID=" + param1 + "&username=" + param2);
 		HttpResponse response = httpClient.execute(httpGet);
 		int code = response.getStatusLine().getStatusCode();
 		if (code == 200) {
@@ -76,9 +77,9 @@ public class HttpRequestUtils {
 		}
 	}
 
-	public static boolean startVoting(int roomID) throws ClientProtocolException, IOException {
+	public static boolean startVoting(String roomID) throws ClientProtocolException, IOException {
 		HttpClient httpClient = new DefaultHttpClient();
-		String param = URLEncoder.encode(roomID+"");
+		String param = URLEncoder.encode(roomID);
 		HttpGet httpGet = new HttpGet(ServerIP + "StartRoom?roomID=" + param);
 		HttpResponse response = httpClient.execute(httpGet);
 		int code = response.getStatusLine().getStatusCode();
@@ -90,6 +91,22 @@ public class HttpRequestUtils {
 			}else{
 				return false;
 			}
+		} else {
+			Log.e(Tag, "Code:" + code);
+			throw new IllegalStateException("Network Failure");
+		}
+	}
+	
+	public static int checkLeader(String roomID) throws IOException {
+		HttpClient httpClient = new DefaultHttpClient();
+		String param = URLEncoder.encode(roomID);
+		HttpGet httpGet = new HttpGet(ServerIP + "CheckLeader?roomID=" + param);
+		HttpResponse response = httpClient.execute(httpGet);
+		int code = response.getStatusLine().getStatusCode();
+		if (code == 200) {
+			InputStream is = response.getEntity().getContent();
+			String result = convertStreamToString(is);
+			return Integer.parseInt(result);
 		} else {
 			Log.e(Tag, "Code:" + code);
 			throw new IllegalStateException("Network Failure");
@@ -116,4 +133,5 @@ public class HttpRequestUtils {
 		}
 		return sb.toString();
 	}
+
 }
