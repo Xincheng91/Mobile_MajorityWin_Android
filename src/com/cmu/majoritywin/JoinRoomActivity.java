@@ -79,6 +79,7 @@ public class JoinRoomActivity extends ActionBarActivity implements
 			break;
 		default:
 			Log.e(Tag, "Unexpected Error");
+			Toast.makeText(this, "Unexpected Error", Toast.LENGTH_SHORT).show();
 			break;
 		}
 	}

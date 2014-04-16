@@ -54,6 +54,18 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.cmu.majoritywin.WaitSubmit"
+            android:label="@string/title_activity_wait_submit" >
+        </activity>
+        <activity
+            android:name="com.cmu.majoritywin.SubmitQuestion"
+            android:label="@string/title_activity_submit_question" >
+        </activity>
+        <activity
+            android:name="com.cmu.majoritywin.StartVote"
+            android:label="@string/title_activity_start_vote" >
+        </activity>
     </application>
 
 </manifest>

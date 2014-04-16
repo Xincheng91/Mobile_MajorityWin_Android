@@ -3,8 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-   
-    <Button
+    
+ 	<Button
         android:id="@+id/Button_Cancle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -12,23 +12,20 @@
         android:layout_marginLeft="15dp"
         android:layout_marginTop="15dp"
         android:text="@string/Text_Back" />
-    
-   <Button
-       android:id="@+id/Button_Create_Room"
+   
+   <TextView
        android:layout_width="wrap_content"
        android:layout_height="wrap_content"
        android:layout_gravity="center"
-       android:layout_marginTop="140dp"
-       android:width="145dp"
-       android:text="@string/Text_Create_Room" />
-
-     <Button
-         android:id="@+id/Button_Join_Room"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:layout_gravity="center"
-         android:layout_marginTop="40dp"
-         android:width="145dp"
-         android:text="@string/Text_Join_Room" />
-     
+       android:layout_marginTop="30dp"
+       android:text="@string/Text_Wait" />
+   
+   <TextView
+       android:id="@+id/TextView_Leader"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_gravity="center"
+       android:layout_marginTop="30dp"
+       />
+   
 </LinearLayout>

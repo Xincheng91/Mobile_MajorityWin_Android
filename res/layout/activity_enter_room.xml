@@ -15,7 +15,7 @@
             android:layout_gravity="left"
             android:layout_marginLeft="15dp"
             android:layout_marginTop="15dp"
-            android:text="@string/Text_Main" />
+            android:text="@string/Text_Back" />
 
         <TextView
             android:id="@+id/TextView_ParticipantNumber"

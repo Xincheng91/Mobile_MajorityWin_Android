@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+ 	<Button
+        android:id="@+id/Button_Cancle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="15dp"
+        android:text="@string/Text_Back" />
+   
+   <TextView
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_gravity="left"
+       android:layout_marginLeft="15dp"
+       android:layout_marginTop="30dp"
+       android:textSize="20sp"
+       android:text="@string/Text_Edit_Topic" />
+
+   <EditText
+       android:id="@+id/Edit_Topic"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:ems="10"
+       android:inputType="textMultiLine" >
+   </EditText>
+   
+  <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="left"
+      android:layout_marginLeft="15dp"
+      android:layout_marginTop="30dp"
+      android:textSize="20sp"
+      android:text="@string/Text_Edit_Options" />
+
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content" 
+      android:layout_marginTop="10dp" >
+      
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="8dp"
+        android:text="A"
+        android:textSize="20sp" />
+
+   <EditText
+       android:id="@+id/EditText_Option1"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:layout_marginLeft="10dp"
+       android:ems="10" />
+
+  </LinearLayout>
+
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="9dp" >
+      
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="8dp"
+        android:text="B"
+        android:textSize="20sp" />
+
+   <EditText
+       android:id="@+id/EditText_Option2"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:layout_marginLeft="10dp"
+       android:ems="10" />
+
+  </LinearLayout>
+  
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="9dp" >
+      
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="8dp"
+        android:text="C"
+        android:textSize="20sp" />
+
+   <EditText
+       android:id="@+id/EditText_Option3"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:layout_marginLeft="10dp"
+       android:ems="10" />
+
+  </LinearLayout>
+ 
+  <Button
+      android:id="@+id/Button_Submit_Question"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:layout_marginTop="15dp"
+      android:text="@string/Text_Submit" />
+
+</LinearLayout>

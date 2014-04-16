@@ -13,6 +13,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.util.Log;
@@ -77,10 +79,10 @@ public class HttpRequestUtils {
 		}
 	}
 
-	public static boolean startVoting(String roomID) throws ClientProtocolException, IOException {
+	public static boolean pickLeader(String roomID) throws IOException {
 		HttpClient httpClient = new DefaultHttpClient();
 		String param = URLEncoder.encode(roomID);
-		HttpGet httpGet = new HttpGet(ServerIP + "StartRoom?roomID=" + param);
+		HttpGet httpGet = new HttpGet(ServerIP + "PickLeader?roomID=" + param);
 		HttpResponse response = httpClient.execute(httpGet);
 		int code = response.getStatusLine().getStatusCode();
 		if (code == 200) {
@@ -97,7 +99,7 @@ public class HttpRequestUtils {
 		}
 	}
 	
-	public static int checkLeader(String roomID) throws IOException {
+	public static String checkLeaderStatus(String roomID) throws IOException {
 		HttpClient httpClient = new DefaultHttpClient();
 		String param = URLEncoder.encode(roomID);
 		HttpGet httpGet = new HttpGet(ServerIP + "CheckLeader?roomID=" + param);
@@ -106,13 +108,50 @@ public class HttpRequestUtils {
 		if (code == 200) {
 			InputStream is = response.getEntity().getContent();
 			String result = convertStreamToString(is);
-			return Integer.parseInt(result);
+			return result;
 		} else {
 			Log.e(Tag, "Code:" + code);
 			throw new IllegalStateException("Network Failure");
 		}
 	}
 	
+	public static void submitQuestion(String json, String roomID) throws IOException {
+		HttpClient httpClient = new DefaultHttpClient();
+		HttpPost httpPost = new HttpPost(ServerIP);
+		String param1 = URLEncoder.encode(roomID);
+		String param2 = URLEncoder.encode(json);
+		StringEntity se = new StringEntity(json);
+        httpPost.setEntity(se);
+        httpPost.setHeader("Accept", "application/json");
+        httpPost.setHeader("Content-type", "application/json");
+        HttpResponse httpResponse = httpClient.execute(httpPost);
+        int code = httpResponse.getStatusLine().getStatusCode();
+		if (code == 200) {
+			//InputStream is = httpResponse.getEntity().getContent();
+			//String result = convertStreamToString(is);
+		} else {
+			Log.e(Tag, "Code:" + code);
+			throw new IllegalStateException("Network Failure");
+		}
+	}
+
+	public static String searchSubmitQuestions(String roomID) throws IOException {
+		HttpClient httpClient = new DefaultHttpClient();
+		String param = URLEncoder.encode(roomID);
+		//searchQuestions reture "" or json string
+		HttpGet httpGet = new HttpGet(ServerIP + "SearchQuestions?roomID=" + param);
+		HttpResponse response = httpClient.execute(httpGet);
+		int code = response.getStatusLine().getStatusCode();
+		if (code == 200) {
+			InputStream is = response.getEntity().getContent();
+			String result = convertStreamToString(is);
+			return result;
+		} else {
+			Log.e(Tag, "Code:" + code);
+			throw new IllegalStateException("Network Failure");
+		}
+	}
+
 	private static String convertStreamToString(InputStream is) {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		StringBuilder sb = new StringBuilder();

@@ -11,7 +11,7 @@
         android:layout_gravity="top"
         android:layout_marginLeft="15dp"
         android:layout_marginTop="15dp"
-        android:text="@string/Text_Main" />
+        android:text="@string/Text_Back" />
 
     <LinearLayout
         android:layout_width="match_parent"

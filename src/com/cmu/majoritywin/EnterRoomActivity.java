@@ -1,12 +1,7 @@
 package com.cmu.majoritywin;
 
 import java.io.IOException;
-import java.util.ArrayList;
-
-import org.apache.http.client.ClientProtocolException;
-
 import com.cmu.http.HttpRequestUtils;
-
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
@@ -63,12 +58,19 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 		
 		handlerForCheckingLeader = new Handler(){
 			public void handleMessage(Message msg){
-				int status = (int) msg.obj;
+				String status = (String) msg.obj;
 				pDialog.dismiss();
-				if(status == 1){
-					
+				if(status.equals(username)){
+					Intent intent = new Intent();
+					intent.setClassName("com.cmu.majoritywin", "com.cmu.majoritywin.SubmitVote");
+					intent.putExtra("com.cmu.passdata.roomID", roomID);
+					startActivity(intent);
 				}else{
-					
+					Intent intent = new Intent();
+					intent.setClassName("com.cmu.majoritywin", "com.cmu.majoritywin.WaitSubmit");
+					intent.putExtra("com.cmu.passdata.leader", status);
+					intent.putExtra("com.cmu.passdata.roomID", roomID);
+					startActivity(intent);
 				}
 				super.handleMessage(msg);
 			}
@@ -108,12 +110,12 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 			while(true){
 				try {
 					if(!flag){
-						HttpRequestUtils.startVoting(roomID);
+						HttpRequestUtils.pickLeader(roomID);
 						flag = true;
 					}else{
-						int status = HttpRequestUtils.checkLeader(roomID);
-						//0 represents not leader, 1 represents leader, 2 represents not ready
-						if(status == 2){
+						String status = HttpRequestUtils.checkLeaderStatus(roomID);
+						//username represents username of leader, @NotReady represents notready
+						if(status.equals("@NotReady")){
 							continue;
 						}else{
 							Message msg = new Message();

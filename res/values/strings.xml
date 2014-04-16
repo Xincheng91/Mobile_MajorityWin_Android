@@ -17,6 +17,14 @@
     <string name="title_activity_join_room">JoinRoomActivity</string>
     <string name="Text_Input_Room">Input the room number:</string>
     <string name="Text_Scan">Scan QR Code</string>
-     <string name="Text_Invite_Friends">Invite friends with QR Code</string>
-
+    <string name="Text_Invite_Friends">Invite friends with QR Code</string>
+    <string name="title_activity_wait_submit">WaitSubmit</string>
+    <string name="Text_Back">Back</string>
+    <string name="title_activity_submit_question">SubmitQuestion</string>
+    <string name="Text_Edit_Topic">Edit Topic</string>
+    <string name="Text_Edit_Options">Edit Options</string>
+    <string name="Text_Submit">Submit</string>
+    <string name="title_activity_start_vote">StartVote</string>
+	<string name="Text_Finished">Finished: 0/5</string>
+	<string name="Text_Majority_Agreed">Majority Agreed: 0/5</string>
 </resources>
