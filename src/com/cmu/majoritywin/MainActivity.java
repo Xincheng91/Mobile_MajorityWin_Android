@@ -27,7 +27,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener{
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		button_exit = (Button) this.findViewById(R.id.Button_Cancle);
+		button_exit = (Button) this.findViewById(R.id.Button_Cancel);
 		button_create_room = (Button) this.findViewById(R.id.Button_Create_Room);
 		button_join_room = (Button) this.findViewById(R.id.Button_Join_Room);
 		button_create_room.setOnClickListener(this);

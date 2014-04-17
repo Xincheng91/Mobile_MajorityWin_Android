@@ -33,7 +33,7 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_enter_room);
-		button_cancle = (Button) this.findViewById(R.id.Button_Cancle);
+		button_cancle = (Button) this.findViewById(R.id.Button_Cancel);
 		button_start_voting = (Button) this.findViewById(R.id.Button_Begin_Vote);
 		textview_participants_number = (TextView) this.findViewById(R.id.TextView_ParticipantNumber);
 		edittext_participants = (EditText) this.findViewById(R.id.EditText_Participants);
@@ -135,12 +135,12 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
-		case R.id.Button_Cancle:
+		case R.id.Button_Cancel:
 			finish();
 			break;
 		case R.id.Button_Begin_Vote:
 			new beginVoteThread().start();
-			pDialog = ProgressDialog.show(this, "server is deciding the leader", "Please wait", true,false);
+			pDialog = ProgressDialog.show(this, "Please Wait", "Server is deciding the leader", true,false);
 			break;
 		default:
 			Log.e(Tag, "Unexpected Error");

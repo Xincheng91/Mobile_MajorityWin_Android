@@ -25,6 +25,10 @@
     <string name="Text_Edit_Options">Edit Options</string>
     <string name="Text_Submit">Submit</string>
     <string name="title_activity_start_vote">StartVote</string>
-	<string name="Text_Finished">Finished: 0/5</string>
-	<string name="Text_Majority_Agreed">Majority Agreed: 0/5</string>
+    <string name="Text_Finished">Finished: 0/5</string>
+    <string name="Text_Majority_Agreed">Majority Agreed: 0/5</string>
+    <string name="title_activity_vote_result">VoteResult</string>
+    <string name="Text_Next_Round">Next_Round</string>
+    <string name="Text_Giveup">Give up</string>
+    <string name="Text_TimeOut">Timer</string>
 </resources>

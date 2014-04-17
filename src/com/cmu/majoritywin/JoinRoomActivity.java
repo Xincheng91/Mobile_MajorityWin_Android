@@ -32,7 +32,7 @@ public class JoinRoomActivity extends ActionBarActivity implements
 		setContentView(R.layout.activity_join_room);
 		edittext_roomNumber = (EditText) this
 				.findViewById(R.id.EditView_RoomNumber);
-		button_cancel = (Button) this.findViewById(R.id.Button_Cancle);
+		button_cancel = (Button) this.findViewById(R.id.Button_Cancel);
 		button_enter_room = (Button) this.findViewById(R.id.Button_Enter_Room);
 		button_scan_qrcode = (Button) this
 				.findViewById(R.id.Button_Scan_QRCode);
@@ -45,7 +45,7 @@ public class JoinRoomActivity extends ActionBarActivity implements
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
-		case R.id.Button_Cancle:
+		case R.id.Button_Cancel:
 			finish();
 			break;
 		case R.id.Button_Enter_Room:

@@ -32,7 +32,7 @@ public class WaitSubmit extends ActionBarActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_wait_submit);
-		button_back = (Button) this.findViewById(R.id.Button_Cancle);
+		button_back = (Button) this.findViewById(R.id.Button_Cancel);
 		text_leader_submit = (TextView) this.findViewById(R.id.TextView_Leader);
 		leader = getIntent().getExtras().getString("com.cmu.passdata.leader");
 		roomID = getIntent().getExtras().getString("com.cmu.passdata.roomID");
@@ -51,7 +51,8 @@ public class WaitSubmit extends ActionBarActivity {
 			while(true){
 				String json;
 				try {
-					json = HttpRequestUtils.searchSubmitQuestions(roomID);
+					sleep(500);
+					json = HttpRequestUtils.checkSubmitQuestionsStatus(roomID);
 					if(!json.equals("")){
 						Intent intent = new Intent();
 						intent.setClassName("com.cmu.majoritywin", "com.cmu.majoritywin.StartVote");
@@ -61,6 +62,10 @@ public class WaitSubmit extends ActionBarActivity {
 						finish();
 					}
 				} catch (IOException e) {
+					Log.e(TAG, e.toString());
+					Toast.makeText(getApplicationContext(), "Unexpected Network Error", Toast.LENGTH_SHORT).show();
+					finish();
+				} catch (InterruptedException e) {
 					Log.e(TAG, e.toString());
 					Toast.makeText(getApplicationContext(), "Unexpected Network Error", Toast.LENGTH_SHORT).show();
 					finish();

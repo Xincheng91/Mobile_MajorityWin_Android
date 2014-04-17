@@ -8,14 +8,18 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 
 import android.util.Log;
 
@@ -117,11 +121,12 @@ public class HttpRequestUtils {
 	
 	public static void submitQuestion(String json, String roomID) throws IOException {
 		HttpClient httpClient = new DefaultHttpClient();
-		HttpPost httpPost = new HttpPost(ServerIP);
-		String param1 = URLEncoder.encode(roomID);
-		String param2 = URLEncoder.encode(json);
-		StringEntity se = new StringEntity(json);
-        httpPost.setEntity(se);
+		HttpPost httpPost = new HttpPost(ServerIP+"SubmitQuestions");
+		List<NameValuePair> parameters = new ArrayList<NameValuePair>();
+		parameters.add(new BasicNameValuePair("roomID", roomID));
+		parameters.add(new BasicNameValuePair("questions", json));
+		UrlEncodedFormEntity entity = new UrlEncodedFormEntity(parameters, "utf-8");
+        httpPost.setEntity(entity);
         httpPost.setHeader("Accept", "application/json");
         httpPost.setHeader("Content-type", "application/json");
         HttpResponse httpResponse = httpClient.execute(httpPost);
@@ -135,11 +140,43 @@ public class HttpRequestUtils {
 		}
 	}
 
-	public static String searchSubmitQuestions(String roomID) throws IOException {
+	public static void submitVote(int option) throws IOException {
+		HttpClient httpClient = new DefaultHttpClient();
+		String param = URLEncoder.encode(option+"");
+		HttpGet httpGet = new HttpGet(ServerIP + "SubmitVote?vote=" + param);
+		HttpResponse response = httpClient.execute(httpGet);
+		int code = response.getStatusLine().getStatusCode();
+		if (code == 200) {
+			//InputStream is = response.getEntity().getContent();
+			//String result = convertStreamToString(is);
+		} else {
+			Log.e(Tag, "Code:" + code);
+			throw new IllegalStateException("Network Failure");
+		}
+	}
+
+	public static String checkSubmitQuestionsStatus(String roomID) throws IOException {
 		HttpClient httpClient = new DefaultHttpClient();
 		String param = URLEncoder.encode(roomID);
-		//searchQuestions reture "" or json string
-		HttpGet httpGet = new HttpGet(ServerIP + "SearchQuestions?roomID=" + param);
+		//checkSubmitQuestionsStatus reture "" or "OK"
+		HttpGet httpGet = new HttpGet(ServerIP + "CheckQuestionStatus?roomID=" + param);
+		HttpResponse response = httpClient.execute(httpGet);
+		int code = response.getStatusLine().getStatusCode();
+		if (code == 200) {
+			InputStream is = response.getEntity().getContent();
+			String result = convertStreamToString(is);
+			return result;
+		} else {
+			Log.e(Tag, "Code:" + code);
+			throw new IllegalStateException("Network Failure");
+		}
+	}
+
+	public static String checkSubmitVoteStatus(String roomID) throws IOException {
+		HttpClient httpClient = new DefaultHttpClient();
+		String param = URLEncoder.encode(roomID);
+		//checkSubmitVoteStatus reture jsonString of jsonObject: numOfFinished int, numOfMajority int, done boolean, result String;
+		HttpGet httpGet = new HttpGet(ServerIP + "CheckSubmitStatus?roomID=" + param);
 		HttpResponse response = httpClient.execute(httpGet);
 		int code = response.getStatusLine().getStatusCode();
 		if (code == 200) {
@@ -173,4 +210,5 @@ public class HttpRequestUtils {
 		return sb.toString();
 	}
 
+	
 }
