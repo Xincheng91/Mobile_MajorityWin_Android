@@ -1,7 +1,12 @@
 package com.cmu.majoritywin;
 
 import java.io.IOException;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.cmu.http.HttpRequestUtils;
+
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
@@ -42,7 +47,10 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 		Intent intent = getIntent();
 		roomID = intent.getExtras().getString("com.cmu.passdata.roomID");
 		username = intent.getExtras().getString("com.cmu.passdata.username");
-		
+		boolean isCreater = intent.getExtras().getBoolean("com.cmu.passdata.isCreater");
+		if(!isCreater){
+			button_start_voting.setVisibility(View.GONE);
+		}
 		handler = new Handler(){
 			public void handleMessage(Message msg) {
 				String[] participants = (String[]) msg.obj;
@@ -58,38 +66,56 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 		
 		handlerForCheckingLeader = new Handler(){
 			public void handleMessage(Message msg){
-				String status = (String) msg.obj;
+				String leader = (String) msg.obj;
 				pDialog.dismiss();
-				if(status.equals(username)){
+				if(leader.equals(username)){
 					Intent intent = new Intent();
-					intent.setClassName("com.cmu.majoritywin", "com.cmu.majoritywin.SubmitVote");
+					intent.setClassName("com.cmu.majoritywin", "com.cmu.majoritywin.SubmitQuestion");
+					intent.putExtra("com.cmu.passdata.leader", leader);
 					intent.putExtra("com.cmu.passdata.roomID", roomID);
+					intent.putExtra("com.cmu.passdata.username", username);
 					startActivity(intent);
+					finish();
 				}else{
 					Intent intent = new Intent();
 					intent.setClassName("com.cmu.majoritywin", "com.cmu.majoritywin.WaitSubmit");
-					intent.putExtra("com.cmu.passdata.leader", status);
+					intent.putExtra("com.cmu.passdata.leader", leader);
 					intent.putExtra("com.cmu.passdata.roomID", roomID);
+					intent.putExtra("com.cmu.passdata.username", username);
 					startActivity(intent);
+					finish();
 				}
 				super.handleMessage(msg);
 			}
 		};
-		
-		new participantsThread().start();
+		new getInfoThread().start();
 	}
 	
-	public class participantsThread extends Thread{
+	public class getInfoThread extends Thread{
 		public void run() {
 			while(true){
 				try {
 					sleep(500);
-					String participants= HttpRequestUtils.getParticipants(roomID);
-					String[] arrayOfParticipants = participants.split(",");
-					if(arrayOfParticipants.length > numberOfParticipants){
+					String info= HttpRequestUtils.getInfo(roomID);
+					JSONObject jsObject = new JSONObject(info);
+					String participants = (String) jsObject.get("participants");
+					int status = (int) jsObject.get("status");
+					String leader = jsObject.getString("leader");
+					if(status == 1){
 						Message msg = new Message();
-						msg.obj = arrayOfParticipants;
-						handler.sendMessage(msg);
+						msg.obj = leader;
+						handlerForCheckingLeader.sendMessage(msg);
+					}else if(status == 0){
+						String[] arrayOfParticipants = participants.split(",");
+						if(arrayOfParticipants.length > numberOfParticipants){
+							Message msg = new Message();
+							msg.obj = arrayOfParticipants;
+							handler.sendMessage(msg);
+						}
+					}else{
+						Toast.makeText(getApplicationContext(), "Unexpected Error",
+								Toast.LENGTH_SHORT).show();
+						finish();
 					}
 				}catch (IOException e) {
 					Log.e(Tag, e.toString());
@@ -99,33 +125,9 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 					Log.e(Tag, e.toString());
 					Toast.makeText(getApplicationContext(), "Problems with network",
 							Toast.LENGTH_SHORT).show();
-				}
-			}
-		}
-	}
-	
-	public class beginVoteThread extends Thread{
-		private boolean flag = false;
-		public void run(){
-			while(true){
-				try {
-					if(!flag){
-						HttpRequestUtils.pickLeader(roomID);
-						flag = true;
-					}else{
-						String status = HttpRequestUtils.checkLeaderStatus(roomID);
-						//username represents username of leader, @NotReady represents notready
-						if(status.equals("@NotReady")){
-							continue;
-						}else{
-							Message msg = new Message();
-							msg.obj = status;
-							handlerForCheckingLeader.sendMessage(msg);
-						}
-					};
-				} catch (IOException e) {
+				} catch (JSONException e) {
 					Log.e(Tag, e.toString());
-					Toast.makeText(getApplicationContext(), "Problems with network",
+					Toast.makeText(getApplicationContext(), "Problems with json parse",
 							Toast.LENGTH_SHORT).show();
 				}
 			}
@@ -139,8 +141,14 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 			finish();
 			break;
 		case R.id.Button_Begin_Vote:
-			new beginVoteThread().start();
-			pDialog = ProgressDialog.show(this, "Please Wait", "Server is deciding the leader", true,false);
+			//pDialog = ProgressDialog.show(this, "Please Wait", "Server is deciding the leader", true,false);
+			try {
+				HttpRequestUtils.pickLeader(roomID);
+			} catch (IOException e) {
+				Log.e(Tag, e.toString());
+				Toast.makeText(getApplicationContext(), "Unexpected Error",
+						Toast.LENGTH_SHORT).show();
+			}
 			break;
 		default:
 			Log.e(Tag, "Unexpected Error");

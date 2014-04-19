@@ -4,9 +4,7 @@ import java.io.IOException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import com.cmu.http.HttpRequestUtils;
-
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
@@ -16,8 +14,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -38,6 +34,7 @@ public class SubmitQuestion extends ActionBarActivity implements
 	private TextView textView_timer;
 	private Handler handler;
 	private int TimerCounter;
+	private String username;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +51,7 @@ public class SubmitQuestion extends ActionBarActivity implements
 		button_submit_question.setOnClickListener(this);
 		button_giveup.setOnClickListener(this);
 		roomID = getIntent().getExtras().getString("com.cmu.passdata.roomID");
+		username = getIntent().getExtras().getString("com.cmu.passdata.username");
 		handler = new Handler() {
 			public void handleMessage(Message msg) {
 				TimerCounter++;
@@ -70,7 +68,20 @@ public class SubmitQuestion extends ActionBarActivity implements
 	}
 
 	private void GiveUp() {
-		
+		try {
+			String newLeader = HttpRequestUtils.giveUp(roomID, username);
+			Intent intent = new Intent();
+			intent.setClassName("com.cmu.majoritywin", "com.cmu.majoritywin.WaitSubmit");
+			intent.putExtra("com.cmu.passdata.roomID", roomID);
+			intent.putExtra("com.cmu.passdata.leader", newLeader);
+			intent.putExtra("com.cmu.passdata.username", username);
+			startActivity(intent);
+			finish();
+		} catch (IOException e) {
+			Log.e(TAG, e.toString());
+			Toast.makeText(this, "Unexpected Network Error",
+					Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	public class TimerThread extends Thread {
@@ -112,6 +123,7 @@ public class SubmitQuestion extends ActionBarActivity implements
 						"com.cmu.majoritywin.StartVote");
 				intent.putExtra("com.cmu.passdata.roomID", roomID);
 				intent.putExtra("com.cmu.passdata.questions", json);
+				intent.putExtra("com.cmu.passdata.username", username);
 				startActivity(intent);
 			} catch (IOException e) {
 				Log.e(TAG, e.toString());

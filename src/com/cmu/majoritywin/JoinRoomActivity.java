@@ -57,6 +57,7 @@ public class JoinRoomActivity extends ActionBarActivity implements
 					intent.setClassName("com.cmu.majoritywin",
 							"com.cmu.majoritywin.EnterRoomActivity");
 					intent.putExtra("com.cmu.passdata.username", username);
+					intent.putExtra("com.cmu.passdata.isCreater", false);
 					startActivity(intent);
 				} else {
 					Toast.makeText(this, "The roomID doesn't exist",

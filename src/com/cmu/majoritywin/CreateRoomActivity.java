@@ -121,6 +121,7 @@ public class CreateRoomActivity extends ActionBarActivity implements OnClickList
 			intent.setClassName("com.cmu.majoritywin", "com.cmu.majoritywin.EnterRoomActivity");
 			intent.putExtra("com.cmu.passdata.roomID", roomID);
 			intent.putExtra("com.cmu.passdata.username", username);
+			intent.putExtra("com.cmu.passdata.isCreater", true);
 			startActivity(intent);
 			break;
 		default:

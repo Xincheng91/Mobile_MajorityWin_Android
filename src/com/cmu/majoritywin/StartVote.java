@@ -43,6 +43,7 @@ public class StartVote extends ActionBarActivity implements OnClickListener{
 	private Button button_submit;
 	private Handler handler;
 	private ProgressDialog pDialog;
+	private String username;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +61,7 @@ public class StartVote extends ActionBarActivity implements OnClickListener{
 		textView_topic = (TextView) this.findViewById(R.id.Text_Topic);
 		jsonString = getIntent().getExtras().getString("com.cmu.passdata.questions");
 		roomID = getIntent().getExtras().getString("com.cmu.passdata.roomID");
+		username = getIntent().getExtras().getString("com.cmu.passdata.username");
 		JSONObject jsObject = null;
 		try {
 			jsObject = new JSONObject(jsonString);
@@ -143,7 +145,7 @@ public class StartVote extends ActionBarActivity implements OnClickListener{
 				option = 3;
 			}
 			try {
-				HttpRequestUtils.submitVote(option);
+				HttpRequestUtils.submitVote(roomID, username, option);
 			} catch (IOException e) {
 				Log.e(TAG, "Unexpected Network Error");
 				Toast.makeText(this, "Unexpected Network Error", Toast.LENGTH_SHORT).show();

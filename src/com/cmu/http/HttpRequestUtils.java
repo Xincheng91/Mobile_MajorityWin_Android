@@ -20,6 +20,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONObject;
 
 import android.util.Log;
 
@@ -37,15 +38,17 @@ public class HttpRequestUtils {
 		if (code == 200) {
 			InputStream is = response.getEntity().getContent();
 			String result = convertStreamToString(is);
-			Log.i(Tag, "result: " + result);
-			return result;
+			if(result.equals("")){
+				throw new IllegalStateException("Unexpected Exception");
+			}else{
+				return result;
+			}
 		} else {
-			Log.e(Tag, "Code:" + code);
 			throw new IllegalStateException("Network Failure");
 		}
 	}
 
-	public static String getParticipants(String roomID) throws ClientProtocolException, IOException {
+	public static String getInfo(String roomID) throws IOException {
 		HttpClient httpClient = new DefaultHttpClient();
 		String param = URLEncoder.encode(roomID);
 		HttpGet httpGet = new HttpGet(ServerIP + "GetRoomInfo?roomID=" + param);
@@ -54,10 +57,12 @@ public class HttpRequestUtils {
 		if (code == 200) {
 			InputStream is = response.getEntity().getContent();
 			String result = convertStreamToString(is);
-			Log.i(Tag, "result: " + result);
-			return result;
+			if(result.equals("")){
+				throw new IllegalStateException("Unexpected Exception");
+			}else{
+				return result;
+			}
 		} else {
-			Log.e(Tag, "Code:" + code);
 			throw new IllegalStateException("Network Failure");
 		}
 	}
@@ -72,7 +77,7 @@ public class HttpRequestUtils {
 		if (code == 200) {
 			InputStream is = response.getEntity().getContent();
 			String result = convertStreamToString(is);
-			if(result.equals("Success")){
+			if(!result.equals("")){
 				return true;
 			}else{
 				return false;
@@ -92,27 +97,11 @@ public class HttpRequestUtils {
 		if (code == 200) {
 			InputStream is = response.getEntity().getContent();
 			String result = convertStreamToString(is);
-			if(result.equals("Success")){
+			if(!result.equals("")){
 				return true;
 			}else{
 				return false;
 			}
-		} else {
-			Log.e(Tag, "Code:" + code);
-			throw new IllegalStateException("Network Failure");
-		}
-	}
-	
-	public static String checkLeaderStatus(String roomID) throws IOException {
-		HttpClient httpClient = new DefaultHttpClient();
-		String param = URLEncoder.encode(roomID);
-		HttpGet httpGet = new HttpGet(ServerIP + "CheckLeader?roomID=" + param);
-		HttpResponse response = httpClient.execute(httpGet);
-		int code = response.getStatusLine().getStatusCode();
-		if (code == 200) {
-			InputStream is = response.getEntity().getContent();
-			String result = convertStreamToString(is);
-			return result;
 		} else {
 			Log.e(Tag, "Code:" + code);
 			throw new IllegalStateException("Network Failure");
@@ -132,23 +121,31 @@ public class HttpRequestUtils {
         HttpResponse httpResponse = httpClient.execute(httpPost);
         int code = httpResponse.getStatusLine().getStatusCode();
 		if (code == 200) {
-			//InputStream is = httpResponse.getEntity().getContent();
-			//String result = convertStreamToString(is);
+			InputStream is = httpResponse.getEntity().getContent();
+			String result = convertStreamToString(is);
+			if(result.equals("")){
+				throw new IllegalStateException("Unexpected Error");
+			}
 		} else {
 			Log.e(Tag, "Code:" + code);
 			throw new IllegalStateException("Network Failure");
 		}
 	}
 
-	public static void submitVote(int option) throws IOException {
+	public static void submitVote(String roomID, String username, int option) throws IOException {
 		HttpClient httpClient = new DefaultHttpClient();
-		String param = URLEncoder.encode(option+"");
-		HttpGet httpGet = new HttpGet(ServerIP + "SubmitVote?vote=" + param);
+		String param1 = URLEncoder.encode(roomID);
+		String param2 = URLEncoder.encode(username);
+		String param3 = URLEncoder.encode(option+"");
+		HttpGet httpGet = new HttpGet(ServerIP + "SubmitVote?roomID=" + param1 +"&username=" + param2 + "&option=" + param3);
 		HttpResponse response = httpClient.execute(httpGet);
 		int code = response.getStatusLine().getStatusCode();
 		if (code == 200) {
-			//InputStream is = response.getEntity().getContent();
-			//String result = convertStreamToString(is);
+			InputStream is = response.getEntity().getContent();
+			String result = convertStreamToString(is);
+			if(result.equals("")){
+				throw new IllegalStateException("Network Failure");
+			}
 		} else {
 			Log.e(Tag, "Code:" + code);
 			throw new IllegalStateException("Network Failure");
@@ -158,14 +155,18 @@ public class HttpRequestUtils {
 	public static String checkSubmitQuestionsStatus(String roomID) throws IOException {
 		HttpClient httpClient = new DefaultHttpClient();
 		String param = URLEncoder.encode(roomID);
-		//checkSubmitQuestionsStatus reture "" or "OK"
+		//checkSubmitQuestionsStatus reture jsonString of jsonObject: OK: boolean, leader: String, questions: String
 		HttpGet httpGet = new HttpGet(ServerIP + "CheckQuestionStatus?roomID=" + param);
 		HttpResponse response = httpClient.execute(httpGet);
 		int code = response.getStatusLine().getStatusCode();
 		if (code == 200) {
 			InputStream is = response.getEntity().getContent();
 			String result = convertStreamToString(is);
-			return result;
+			if(!result.equals("")){
+				return result;
+			}else{
+				throw new IllegalStateException("Unexpected Error");
+			}
 		} else {
 			Log.e(Tag, "Code:" + code);
 			throw new IllegalStateException("Network Failure");
@@ -183,6 +184,28 @@ public class HttpRequestUtils {
 			InputStream is = response.getEntity().getContent();
 			String result = convertStreamToString(is);
 			return result;
+		} else {
+			Log.e(Tag, "Code:" + code);
+			throw new IllegalStateException("Network Failure");
+		}
+	}
+
+	public static String giveUp(String roomID, String username) throws IOException {
+		HttpClient httpClient = new DefaultHttpClient();
+		String param1 = URLEncoder.encode(roomID);
+		String param2 = URLEncoder.encode(username);
+		//checkSubmitVoteStatus reture newLeader string;
+		HttpGet httpGet = new HttpGet(ServerIP + "GiveUpLeader?roomID=" + param1 +"&username=" + param2);
+		HttpResponse response = httpClient.execute(httpGet);
+		int code = response.getStatusLine().getStatusCode();
+		if (code == 200) {
+			InputStream is = response.getEntity().getContent();
+			String result = convertStreamToString(is);
+			if(!result.equals("")){
+				return result;
+			}else{
+				throw new IllegalStateException("Unexpected Exception");
+			}
 		} else {
 			Log.e(Tag, "Code:" + code);
 			throw new IllegalStateException("Network Failure");
@@ -210,5 +233,4 @@ public class HttpRequestUtils {
 		return sb.toString();
 	}
 
-	
 }
