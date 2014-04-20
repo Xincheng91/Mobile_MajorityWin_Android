@@ -100,9 +100,9 @@ public class StartVote extends ActionBarActivity implements OnClickListener{
 					JSONObject jsObject = new JSONObject(jsonStatus);
 					int numOfFinished = jsObject.getInt("numOfFinished");
 					int numOfMajority = jsObject.getInt("numOfMajority");
-					boolean done = jsObject.getBoolean("Done");
+					int status = jsObject.getInt("status");
 					String voteResult = jsObject.getString("result");
-					if(done){
+					if(status == 3){
 						Intent intent = new Intent();
 						intent.setClassName("com.cmu.majoritywin", "com.cmu.majoritywin.VoteResult");
 						intent.putExtra("com.cmu.passdata.roomID", roomID);

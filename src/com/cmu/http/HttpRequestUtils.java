@@ -176,14 +176,18 @@ public class HttpRequestUtils {
 	public static String checkSubmitVoteStatus(String roomID) throws IOException {
 		HttpClient httpClient = new DefaultHttpClient();
 		String param = URLEncoder.encode(roomID);
-		//checkSubmitVoteStatus reture jsonString of jsonObject: numOfFinished int, numOfMajority int, done boolean, result String;
+		//checkSubmitVoteStatus return jsonString of jsonObject: numOfFinished int, numOfMajority int, int status, result String;
 		HttpGet httpGet = new HttpGet(ServerIP + "CheckSubmitStatus?roomID=" + param);
 		HttpResponse response = httpClient.execute(httpGet);
 		int code = response.getStatusLine().getStatusCode();
 		if (code == 200) {
 			InputStream is = response.getEntity().getContent();
 			String result = convertStreamToString(is);
-			return result;
+			if(result.equals("")){
+				throw new IllegalStateException("Network Failure");
+			}else{
+				return result;
+			}
 		} else {
 			Log.e(Tag, "Code:" + code);
 			throw new IllegalStateException("Network Failure");
