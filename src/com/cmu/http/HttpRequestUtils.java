@@ -27,7 +27,7 @@ import android.util.Log;
 public class HttpRequestUtils {
 
 	private static String Tag = "HttpRequestUtils";
-	private static String ServerIP = "http://128.237.205.231:8080/MajorityWin/";
+	private static String ServerIP = "http://128.237.195.184:8080/MajorityWin/";
 
 	public static String createRoom(String username) throws ClientProtocolException,
 			IOException {

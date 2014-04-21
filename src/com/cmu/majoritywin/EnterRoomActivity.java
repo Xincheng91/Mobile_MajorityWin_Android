@@ -32,8 +32,8 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 	private Handler handlerForCheckingLeader;
 	private int numberOfParticipants = 0;
 	private String roomID;
-	//private ProgressDialog pDialog;
 	private String username;
+	private Handler toastHandler;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -89,11 +89,36 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 			}
 		};
 		new getInfoThread().start();
+		toastHandler = new Handler() {
+			public void handleMessage(Message msg) {
+				switch (msg.what) {
+				case 0:
+					Toast.makeText(getApplicationContext(),
+							"Problems with network", Toast.LENGTH_SHORT).show();
+					break;
+				case 1:
+					Toast.makeText(getApplicationContext(),
+							"Json error", Toast.LENGTH_SHORT).show();
+					break;
+				case 2:
+					Toast.makeText(getApplicationContext(),
+							"Unexpected Error", Toast.LENGTH_SHORT).show();
+					break;
+				case 3:
+					Toast.makeText(getApplicationContext(),
+							"Wrong status returned by server", Toast.LENGTH_SHORT).show();
+					break;
+				default:
+					break;
+				}
+			}
+		};
 	}
 	
 	public class getInfoThread extends Thread{
+		boolean flag = true;
 		public void run() {
-			while(true){
+			while(flag){
 				try {
 					sleep(500);
 					String info= HttpRequestUtils.getInfo(roomID);
@@ -105,6 +130,7 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 						Message msg = new Message();
 						msg.obj = leader;
 						handlerForCheckingLeader.sendMessage(msg);
+						flag = false;
 					}else if(status == 0){
 						String[] arrayOfParticipants = participants.split(",");
 						if(arrayOfParticipants.length > numberOfParticipants){
@@ -113,23 +139,31 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 							handler.sendMessage(msg);
 						}
 					}else{
-						Toast.makeText(getApplicationContext(), "Wrong status returned by server",
-								Toast.LENGTH_SHORT).show();
+						Log.e(Tag, "Wrong status returned by server");
+						toastHandler.sendEmptyMessage(3);
 						finish();
 					}
 				}catch (IOException e) {
 					Log.e(Tag, e.toString());
-					Toast.makeText(getApplicationContext(), "Problems with network",
-							Toast.LENGTH_SHORT).show();
+					toastHandler.sendEmptyMessage(0);
 				} catch (InterruptedException e) {
 					Log.e(Tag, e.toString());
-					Toast.makeText(getApplicationContext(), "Problems with thread",
-							Toast.LENGTH_SHORT).show();
+					toastHandler.sendEmptyMessage(0);
 				} catch (JSONException e) {
 					Log.e(Tag, e.toString());
-					Toast.makeText(getApplicationContext(), "Problems with json parse",
-							Toast.LENGTH_SHORT).show();
+					toastHandler.sendEmptyMessage(1);
 				}
+			}
+		}
+	}
+	
+	public class pickLeaderThread extends Thread{
+		public void run(){
+			try {
+				HttpRequestUtils.pickLeader(roomID);
+			} catch (IOException e) {
+				Log.e(Tag, e.toString());
+				toastHandler.sendEmptyMessage(2);
 			}
 		}
 	}
@@ -141,14 +175,7 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 			finish();
 			break;
 		case R.id.Button_Begin_Vote:
-			//pDialog = ProgressDialog.show(this, "Please Wait", "Server is deciding the leader", true,false);
-			try {
-				HttpRequestUtils.pickLeader(roomID);
-			} catch (IOException e) {
-				Log.e(Tag, e.toString());
-				Toast.makeText(getApplicationContext(), "Unexpected Error",
-						Toast.LENGTH_SHORT).show();
-			}
+			new pickLeaderThread().start();
 			break;
 		default:
 			Log.e(Tag, "Unexpected Error");

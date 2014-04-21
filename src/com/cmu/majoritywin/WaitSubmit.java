@@ -28,6 +28,7 @@ public class WaitSubmit extends ActionBarActivity {
 	private String roomID;
 	private String username;
 	private Handler handler;
+	private Handler toastHandler;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -48,6 +49,31 @@ public class WaitSubmit extends ActionBarActivity {
 		handler = new Handler(){
 			public void handleMessage(Message msg) {
 				text_leader_submit.setText((String)msg.obj);
+			}
+		};
+		
+		toastHandler = new Handler(){
+			public void handleMessage(Message msg) {
+				switch (msg.what) {
+				case 0:
+					Toast.makeText(getApplicationContext(),
+							"You are the leader now", Toast.LENGTH_SHORT).show();
+					break;
+				case 1:
+					Toast.makeText(getApplicationContext(),
+							"Leader is changed", Toast.LENGTH_SHORT).show();
+					break;
+				case 2:
+					Toast.makeText(getApplicationContext(),
+							"Network Error", Toast.LENGTH_SHORT).show();
+					break;
+				case 3:
+					Toast.makeText(getApplicationContext(),
+							"Json Error", Toast.LENGTH_SHORT).show();
+					break;
+				default:
+					break;
+				}
 			}
 		};
 	}
@@ -72,12 +98,12 @@ public class WaitSubmit extends ActionBarActivity {
 						finish();
 					}else{
 						if(!newLeader.equals(leader)){
-							Toast.makeText(getApplicationContext(), "Leader is changed", Toast.LENGTH_SHORT).show();
+							toastHandler.sendEmptyMessage(1);
 							Message msg = new Message();
 							msg.obj = newLeader;
 							handler.sendMessage(msg);
 						}else{
-							Toast.makeText(getApplicationContext(), "You are the leader now", Toast.LENGTH_SHORT).show();
+							toastHandler.sendEmptyMessage(0);
 							Intent intent = new Intent();
 							intent.setClassName("com.cmu.majoritywin", "com.cmu.majoritywin.SubmitQuestion");
 							intent.putExtra("com.cmu.passdata.roomID", roomID);
@@ -89,15 +115,15 @@ public class WaitSubmit extends ActionBarActivity {
 					}
 				} catch (IOException e) {
 					Log.e(TAG, e.toString());
-					Toast.makeText(getApplicationContext(), "Unexpected Network Error", Toast.LENGTH_SHORT).show();
+					toastHandler.sendEmptyMessage(2);
 					finish();
 				} catch (InterruptedException e) {
 					Log.e(TAG, e.toString());
-					Toast.makeText(getApplicationContext(), "Unexpected Network Error", Toast.LENGTH_SHORT).show();
+					toastHandler.sendEmptyMessage(2);
 					finish();
 				} catch (JSONException e) {
 					Log.e(TAG, e.toString());
-					Toast.makeText(getApplicationContext(), "Unexpected JSON Error", Toast.LENGTH_SHORT).show();
+					toastHandler.sendEmptyMessage(3);
 					finish();
 				}
 			}

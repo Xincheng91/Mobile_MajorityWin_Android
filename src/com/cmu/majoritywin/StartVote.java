@@ -44,6 +44,7 @@ public class StartVote extends ActionBarActivity implements OnClickListener{
 	private Handler handler;
 	private ProgressDialog pDialog;
 	private String username;
+	private Handler toastHandler;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +89,26 @@ public class StartVote extends ActionBarActivity implements OnClickListener{
 			}
 		};
 		new checkRoomStatusThread().start();
+		toastHandler = new Handler() {
+			public void handleMessage(Message msg) {
+				switch (msg.what) {
+				case 0:
+					Toast.makeText(getApplicationContext(),
+							"Problems with network", Toast.LENGTH_SHORT).show();
+					break;
+				case 1:
+					Toast.makeText(getApplicationContext(),
+							"Problems with json", Toast.LENGTH_SHORT).show();
+					break;
+				case 2:
+					Toast.makeText(getApplicationContext(),
+							"Unexpected Error", Toast.LENGTH_SHORT).show();
+					break;
+				default:
+					break;
+				}
+			}
+		};
 	}
 
 	public class checkRoomStatusThread extends Thread{
@@ -120,25 +141,20 @@ public class StartVote extends ActionBarActivity implements OnClickListener{
 					}
 				} catch (IOException e) {
 					Log.e(TAG, e.toString());
-					Toast.makeText(getApplicationContext(), "Unexpected Error", Toast.LENGTH_SHORT).show();
+					toastHandler.sendEmptyMessage(0);
 				} catch (JSONException e) {
 					Log.e(TAG, "Unexpected JSON Error");
-					Toast.makeText(getApplicationContext(), "Unexpected JSON Error", Toast.LENGTH_SHORT).show();
+					toastHandler.sendEmptyMessage(1);
 				} catch (InterruptedException e) {
 					Log.e(TAG, e.toString());
-					Toast.makeText(getApplicationContext(), "Unexpected Error", Toast.LENGTH_SHORT).show();
+					toastHandler.sendEmptyMessage(2);
 				}
 			}
 		}
 	}
 	
-	@Override
-	public void onClick(View v) {
-		switch (v.getId()) {
-		case R.id.Button_Cancel:
-			finish();
-			break;
-		case R.id.Button_Submit:
+	public class submitVoteThread extends Thread{
+		public void run(){
 			int option = 0;
 			if(option1.isChecked()){
 				option = 1;	
@@ -151,10 +167,21 @@ public class StartVote extends ActionBarActivity implements OnClickListener{
 				HttpRequestUtils.submitVote(roomID, username, option);
 			} catch (IOException e) {
 				Log.e(TAG, "Unexpected Network Error");
-				Toast.makeText(this, "Unexpected Network Error", Toast.LENGTH_SHORT).show();
+				toastHandler.sendEmptyMessage(0);
 				finish();
 			}
-			pDialog = ProgressDialog.show(this, "Note", "Thank you for your waiting, please wait others...", true,false);
+			pDialog = ProgressDialog.show(getApplicationContext(), "Note", "Thank you for your waiting, please wait others...", true,false);
+		}
+	}
+	
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.Button_Cancel:
+			finish();
+			break;
+		case R.id.Button_Submit:
+			new submitVoteThread().start();
 			break;
 		default:
 			Log.e(TAG, "Unexpected Error");

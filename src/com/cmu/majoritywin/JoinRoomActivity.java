@@ -3,12 +3,16 @@ package com.cmu.majoritywin;
 import java.io.IOException;
 
 import org.apache.http.client.ClientProtocolException;
+
 import com.cmu.http.HttpRequestUtils;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+
 import android.support.v7.app.ActionBarActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -25,6 +29,8 @@ public class JoinRoomActivity extends ActionBarActivity implements
 	private Button button_enter_room;
 	private Button button_scan_qrcode;
 	private String username;
+	private Handler handler;
+	private Handler toastHandler;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -40,19 +46,11 @@ public class JoinRoomActivity extends ActionBarActivity implements
 		button_enter_room.setOnClickListener(this);
 		button_scan_qrcode.setOnClickListener(this);
 		username = getIntent().getExtras().getString("com.cmu.passdata.username").trim();
-	}
-
-	@Override
-	public void onClick(View v) {
-		switch (v.getId()) {
-		case R.id.Button_Cancel:
-			finish();
-			break;
-		case R.id.Button_Enter_Room:
-			String roomID = edittext_roomNumber.getText().toString();
-			try {
-				boolean result = HttpRequestUtils.joinRoom(roomID, username);
+		handler = new Handler(){
+			public void handleMessage(Message msg) {
+				boolean result = (boolean) msg.obj;
 				if (result) {
+					String roomID = edittext_roomNumber.getText().toString();
 					Intent intent = new Intent();
 					intent.setClassName("com.cmu.majoritywin",
 							"com.cmu.majoritywin.EnterRoomActivity");
@@ -61,18 +59,53 @@ public class JoinRoomActivity extends ActionBarActivity implements
 					intent.putExtra("com.cmu.passdata.isCreater", false);
 					startActivity(intent);
 				} else {
-					Toast.makeText(this, "The roomID doesn't exist",
+					Toast.makeText(getApplicationContext(), "The roomID doesn't exist",
 							Toast.LENGTH_SHORT).show();
 				}
+			}
+		};
+		toastHandler = new Handler() {
+			public void handleMessage(Message msg) {
+				switch (msg.what) {
+				case 0:
+					Toast.makeText(getApplicationContext(),
+							"Problems with network", Toast.LENGTH_SHORT).show();
+					break;
+				default:
+					break;
+				}
+			}
+		};
+	}
+
+	public class networkThread extends Thread{
+		public void run(){
+			String roomID = edittext_roomNumber.getText().toString();
+			try {
+				boolean result = HttpRequestUtils.joinRoom(roomID, username);
+				Message msg = new Message();
+				msg.obj = result;
+				handler.sendMessage(msg);
 			} catch (ClientProtocolException e) {
 				Log.e(Tag, e.toString());
-				Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show();
+				toastHandler.sendEmptyMessage(0);
 				return;
 			} catch (IOException e) {
 				Log.e(Tag, e.toString());
-				Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show();
+				toastHandler.sendEmptyMessage(0);
 				return;
 			}
+		}
+	}
+	
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.Button_Cancel:
+			finish();
+			break;
+		case R.id.Button_Enter_Room:
+			new networkThread().start();
 			break;
 		case R.id.Button_Scan_QRCode:
 			IntentIntegrator integrator = new IntentIntegrator(this);

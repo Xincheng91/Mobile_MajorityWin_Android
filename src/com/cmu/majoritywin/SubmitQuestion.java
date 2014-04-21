@@ -35,6 +35,8 @@ public class SubmitQuestion extends ActionBarActivity implements
 	private Handler handler;
 	private int TimerCounter;
 	private String username;
+	private boolean startVoteFlag;
+	private Handler toastHandler;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,9 +57,9 @@ public class SubmitQuestion extends ActionBarActivity implements
 		handler = new Handler() {
 			public void handleMessage(Message msg) {
 				TimerCounter++;
-				if (TimerCounter >= 120) {
-					GiveUp();
-				} else {
+				if (TimerCounter == 120) {
+					new GiveUpThread().start();
+				} else if (TimerCounter < 120){
 					textView_timer.setText(TimerCounter + "s / 120s");
 				}
 				super.handleMessage(msg);
@@ -65,31 +67,56 @@ public class SubmitQuestion extends ActionBarActivity implements
 
 		};
 		new TimerThread().start();
+		toastHandler = new Handler() {
+			public void handleMessage(Message msg) {
+				switch (msg.what) {
+				case 0:
+					Toast.makeText(getApplicationContext(),
+							"Problems with network", Toast.LENGTH_SHORT).show();
+					break;
+				case 1:
+					Toast.makeText(getApplicationContext(),
+							"Problems with json", Toast.LENGTH_SHORT).show();
+					break;
+				case 2:
+					Toast.makeText(getApplicationContext(),
+							"Unexpected Error", Toast.LENGTH_SHORT).show();
+					break;
+				default:
+					break;
+				}
+			}
+		};
 	}
 
-	private void GiveUp() {
-		try {
-			String newLeader = HttpRequestUtils.giveUp(roomID, username);
-			Intent intent = new Intent();
-			intent.setClassName("com.cmu.majoritywin", "com.cmu.majoritywin.WaitSubmit");
-			intent.putExtra("com.cmu.passdata.roomID", roomID);
-			intent.putExtra("com.cmu.passdata.leader", newLeader);
-			intent.putExtra("com.cmu.passdata.username", username);
-			startActivity(intent);
-			finish();
-		} catch (IOException e) {
-			Log.e(TAG, e.toString());
-			Toast.makeText(this, "Unexpected Network Error",
-					Toast.LENGTH_SHORT).show();
+	private class GiveUpThread extends Thread{
+		public void run(){
+			try {
+				String newLeader = HttpRequestUtils.giveUp(roomID, username);
+				Intent intent = new Intent();
+				intent.setClassName("com.cmu.majoritywin", "com.cmu.majoritywin.WaitSubmit");
+				intent.putExtra("com.cmu.passdata.roomID", roomID);
+				intent.putExtra("com.cmu.passdata.leader", newLeader);
+				intent.putExtra("com.cmu.passdata.username", username);
+				startActivity(intent);
+				finish();
+			} catch (IOException e) {
+				Log.e(TAG, e.toString());
+				toastHandler.sendEmptyMessage(0);
+			}
 		}
 	}
 
 	public class TimerThread extends Thread {
+		int count = 0;
 		public void run() {
 			while (true) {
 				try {
-					sleep(1000);
-					handler.sendEmptyMessage(0);
+					if(count<=125){
+						sleep(1000);
+						handler.sendEmptyMessage(0);
+						count++;
+					}
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -97,9 +124,8 @@ public class SubmitQuestion extends ActionBarActivity implements
 		}
 	}
 
-	public void onClick(View v) {
-		switch (v.getId()) {
-		case R.id.Button_Submit_Question:
+	public class startVoteThread extends Thread{
+		public void run(){
 			JSONObject jsonObject = new JSONObject();
 			try {
 				jsonObject.accumulate("topic", editText_topic.getText()
@@ -112,8 +138,7 @@ public class SubmitQuestion extends ActionBarActivity implements
 						.toString());
 			} catch (JSONException e) {
 				Log.e(TAG, e.toString());
-				Toast.makeText(this, "Unexpected Json Error",
-						Toast.LENGTH_SHORT).show();
+				toastHandler.sendEmptyMessage(1);
 			}
 			String json = jsonObject.toString();
 			try {
@@ -127,8 +152,17 @@ public class SubmitQuestion extends ActionBarActivity implements
 				startActivity(intent);
 			} catch (IOException e) {
 				Log.e(TAG, e.toString());
-				Toast.makeText(this, "Unexpected Network Error",
-						Toast.LENGTH_SHORT).show();
+				toastHandler.sendEmptyMessage(0);
+			}
+		}
+	}
+	
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.Button_Submit_Question:
+			if(!startVoteFlag){
+				new startVoteThread().start();
+				startVoteFlag = true;
 			}
 			break;
 		case R.id.Button_Give_Up:
@@ -141,7 +175,7 @@ public class SubmitQuestion extends ActionBarActivity implements
 							new DialogInterface.OnClickListener() {
 								public void onClick(DialogInterface dialog,
 										int which) {
-									GiveUp();
+									new GiveUpThread().start();
 								}
 
 							}).setNegativeButton("No", null).show();
