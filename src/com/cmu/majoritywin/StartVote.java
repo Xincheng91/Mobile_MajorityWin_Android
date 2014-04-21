@@ -11,6 +11,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -77,7 +78,6 @@ public class StartVote extends ActionBarActivity implements OnClickListener{
 		} catch (JSONException e) {
 			Log.e(TAG, e.toString());
 			Toast.makeText(this, "Unexpected Json Error", Toast.LENGTH_SHORT).show();
-			finish();
 		}
 		handler = new Handler(){
 			public void handleMessage(Message msg) {
@@ -89,6 +89,7 @@ public class StartVote extends ActionBarActivity implements OnClickListener{
 			}
 		};
 		new checkRoomStatusThread().start();
+		final Context ctx = this;
 		toastHandler = new Handler() {
 			public void handleMessage(Message msg) {
 				switch (msg.what) {
@@ -104,6 +105,9 @@ public class StartVote extends ActionBarActivity implements OnClickListener{
 					Toast.makeText(getApplicationContext(),
 							"Unexpected Error", Toast.LENGTH_SHORT).show();
 					break;
+				case 3:
+					pDialog = ProgressDialog.show(ctx, "Note", "Thank you for your waiting, please wait others...", true,false);
+					break;
 				default:
 					break;
 				}
@@ -112,8 +116,9 @@ public class StartVote extends ActionBarActivity implements OnClickListener{
 	}
 
 	public class checkRoomStatusThread extends Thread{
+		boolean flag = true;
 		public void run(){
-			while(true){
+			while(flag){
 				String jsonStatus;
 				try {
 					sleep(500);
@@ -121,18 +126,22 @@ public class StartVote extends ActionBarActivity implements OnClickListener{
 					JSONObject jsObject = new JSONObject(jsonStatus);
 					int numOfFinished = jsObject.getInt("numOfFinished");
 					int numOfMajority = jsObject.getInt("numOfMajority");
+					Log.i(TAG, "numOfMajority: " + numOfMajority);
 					int status = jsObject.getInt("status");
 					String voteResult = jsObject.getString("result");
 					if(status == 3){
-						if(pDialog.isShowing()){
+						if(pDialog!=null && pDialog.isShowing()){
 							pDialog.dismiss();
 						}
 						Intent intent = new Intent();
 						intent.setClassName("com.cmu.majoritywin", "com.cmu.majoritywin.VoteResult");
 						intent.putExtra("com.cmu.passdata.roomID", roomID);
 						intent.putExtra("com.cmu.passdata.result", voteResult);
-						intent.putExtra("com.cmu.passdata.numOfMajority", numOfMajority);
+						intent.putExtra("com.cmu.passdata.numOfMajority", numOfMajority+"");
+						intent.putExtra("com.cmu.passdata.username", username);
 						startActivity(intent);
+						finish();
+						flag = false;
 					}else{
 						Message msg = new Message();
 						msg.arg1 = numOfFinished;
@@ -157,20 +166,19 @@ public class StartVote extends ActionBarActivity implements OnClickListener{
 		public void run(){
 			int option = 0;
 			if(option1.isChecked()){
-				option = 1;	
+				option = 0;	
 			}else if(option2.isChecked()){
-				option = 2;
+				option = 1;
 			}else if(option3.isChecked()){
-				option = 3;
+				option = 2;
 			}
 			try {
 				HttpRequestUtils.submitVote(roomID, username, option);
+				toastHandler.sendEmptyMessage(3);
 			} catch (IOException e) {
 				Log.e(TAG, "Unexpected Network Error");
 				toastHandler.sendEmptyMessage(0);
-				finish();
 			}
-			pDialog = ProgressDialog.show(getApplicationContext(), "Note", "Thank you for your waiting, please wait others...", true,false);
 		}
 	}
 	

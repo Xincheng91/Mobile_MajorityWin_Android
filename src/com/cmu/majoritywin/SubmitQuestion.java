@@ -93,13 +93,22 @@ public class SubmitQuestion extends ActionBarActivity implements
 		public void run(){
 			try {
 				String newLeader = HttpRequestUtils.giveUp(roomID, username);
-				Intent intent = new Intent();
-				intent.setClassName("com.cmu.majoritywin", "com.cmu.majoritywin.WaitSubmit");
-				intent.putExtra("com.cmu.passdata.roomID", roomID);
-				intent.putExtra("com.cmu.passdata.leader", newLeader);
-				intent.putExtra("com.cmu.passdata.username", username);
-				startActivity(intent);
-				finish();
+				if(username.equals(newLeader)){
+					Intent intent = new Intent();
+					intent.setClassName("com.cmu.majoritywin", "com.cmu.majoritywin.SubmitQuestion");
+					intent.putExtra("com.cmu.passdata.roomID", roomID);
+					intent.putExtra("com.cmu.passdata.username", username);
+					startActivity(intent);
+					finish();
+				}else{
+					Intent intent = new Intent();
+					intent.setClassName("com.cmu.majoritywin", "com.cmu.majoritywin.WaitSubmit");
+					intent.putExtra("com.cmu.passdata.roomID", roomID);
+					intent.putExtra("com.cmu.passdata.leader", newLeader);
+					intent.putExtra("com.cmu.passdata.username", username);
+					startActivity(intent);
+					finish();
+				}
 			} catch (IOException e) {
 				Log.e(TAG, e.toString());
 				toastHandler.sendEmptyMessage(0);
@@ -116,6 +125,8 @@ public class SubmitQuestion extends ActionBarActivity implements
 						sleep(1000);
 						handler.sendEmptyMessage(0);
 						count++;
+					}else{
+						break;
 					}
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -150,6 +161,7 @@ public class SubmitQuestion extends ActionBarActivity implements
 				intent.putExtra("com.cmu.passdata.questions", json);
 				intent.putExtra("com.cmu.passdata.username", username);
 				startActivity(intent);
+				finish();
 			} catch (IOException e) {
 				Log.e(TAG, e.toString());
 				toastHandler.sendEmptyMessage(0);

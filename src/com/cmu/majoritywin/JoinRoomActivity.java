@@ -58,6 +58,7 @@ public class JoinRoomActivity extends ActionBarActivity implements
 					intent.putExtra("com.cmu.passdata.roomID", roomID);
 					intent.putExtra("com.cmu.passdata.isCreater", false);
 					startActivity(intent);
+					finish();
 				} else {
 					Toast.makeText(getApplicationContext(), "The roomID doesn't exist",
 							Toast.LENGTH_SHORT).show();

@@ -7,6 +7,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.content.Intent;
 import android.os.Bundle;
 
 public class VoteResult extends ActionBarActivity implements OnClickListener{
@@ -18,6 +19,7 @@ public class VoteResult extends ActionBarActivity implements OnClickListener{
 	private String roomID;
 	private String result;
 	private String majority;
+	private String username;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -29,6 +31,7 @@ public class VoteResult extends ActionBarActivity implements OnClickListener{
 		button_next_round.setOnClickListener(this);
 		roomID = getIntent().getExtras().getString("com.cmu.passdata.roomID");
 		result = getIntent().getExtras().getString("com.cmu.passdata.result");
+		username = getIntent().getExtras().getString("com.cmu.passdata.username");
 		majority = getIntent().getExtras().getString("com.cmu.passdata.numOfMajority") + "/5";
 		textView_result.setText(result + " - " + majority);
 	}
@@ -37,6 +40,13 @@ public class VoteResult extends ActionBarActivity implements OnClickListener{
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.Button_Next_Round:
+			Intent intent = new Intent();
+			intent.setClassName("com.cmu.majoritywin",
+					"com.cmu.majoritywin.EnterRoomActivity");
+			intent.putExtra("com.cmu.passdata.roomID", roomID);
+			intent.putExtra("com.cmu.passdata.username", username);
+			intent.putExtra("com.cmu.passdata.isCreater", true);
+			startActivity(intent);
 			finish();
 			break;
 		case R.id.Button_Exit:

@@ -141,7 +141,6 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 					}else{
 						Log.e(Tag, "Wrong status returned by server");
 						toastHandler.sendEmptyMessage(3);
-						finish();
 					}
 				}catch (IOException e) {
 					Log.e(Tag, e.toString());

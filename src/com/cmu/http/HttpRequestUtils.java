@@ -27,7 +27,7 @@ import android.util.Log;
 public class HttpRequestUtils {
 
 	private static String Tag = "HttpRequestUtils";
-	private static String ServerIP = "http://128.237.195.184:8080/MajorityWin/";
+	private static String ServerIP = "http://128.237.202.252:8080/MajorityWin/";
 
 	public static String createRoom(String username) throws ClientProtocolException,
 			IOException {
@@ -110,18 +110,13 @@ public class HttpRequestUtils {
 	
 	public static void submitQuestion(String json, String roomID) throws IOException {
 		HttpClient httpClient = new DefaultHttpClient();
-		HttpPost httpPost = new HttpPost(ServerIP+"SubmitQuestion");
-		List<NameValuePair> parameters = new ArrayList<NameValuePair>();
-		parameters.add(new BasicNameValuePair("roomID", roomID));
-		parameters.add(new BasicNameValuePair("questions", json));
-		UrlEncodedFormEntity entity = new UrlEncodedFormEntity(parameters, "utf-8");
-        httpPost.setEntity(entity);
-        httpPost.setHeader("Accept", "application/json");
-        httpPost.setHeader("Content-type", "application/json");
-        HttpResponse httpResponse = httpClient.execute(httpPost);
-        int code = httpResponse.getStatusLine().getStatusCode();
+		String param = URLEncoder.encode(roomID);
+		String param2 = URLEncoder.encode(json);
+		HttpGet httpGet = new HttpGet(ServerIP + "SubmitQuestion?roomID=" + param + "&question=" + param2);
+		HttpResponse response = httpClient.execute(httpGet);
+		int code = response.getStatusLine().getStatusCode();
 		if (code == 200) {
-			InputStream is = httpResponse.getEntity().getContent();
+			InputStream is = response.getEntity().getContent();
 			String result = convertStreamToString(is);
 			if(result.equals("")){
 				throw new IllegalStateException("Unexpected Error");
@@ -199,7 +194,7 @@ public class HttpRequestUtils {
 		String param1 = URLEncoder.encode(roomID);
 		String param2 = URLEncoder.encode(username);
 		//checkSubmitVoteStatus reture newLeader string;
-		HttpGet httpGet = new HttpGet(ServerIP + "GiveUpLeader?roomID=" + param1 +"&username=" + param2);
+		HttpGet httpGet = new HttpGet(ServerIP + "GiveUpLeader?roomID=" + param1 +"&currentLeader=" + param2);
 		HttpResponse response = httpClient.execute(httpGet);
 		int code = response.getStatusLine().getStatusCode();
 		if (code == 200) {
