@@ -30,6 +30,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener{
 		button_exit = (Button) this.findViewById(R.id.Button_Cancel);
 		button_create_room = (Button) this.findViewById(R.id.Button_Create_Room);
 		button_join_room = (Button) this.findViewById(R.id.Button_Join_Room);
+		button_exit.setOnClickListener(this);
 		button_create_room.setOnClickListener(this);
 		button_join_room.setOnClickListener(this);
 		username = getIntent().getExtras().getString("com.cmu.passdata.username").trim();
@@ -38,7 +39,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener{
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
-		case R.id.Button_Exit:
+		case R.id.Button_Cancel:
 			finish();
 			break;
 		case R.id.Button_Create_Room:
@@ -54,7 +55,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener{
 			startActivity(intent1);
 			break;
 		default:
-			Log.e(Tag, "Unexpected Error");
+			Log.e(Tag, "Unexpected Click Error");
 			finish();
 			break;
 		}

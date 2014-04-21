@@ -142,7 +142,6 @@ public class SubmitQuestion extends ActionBarActivity implements
 								public void onClick(DialogInterface dialog,
 										int which) {
 									GiveUp();
-									finish();
 								}
 
 							}).setNegativeButton("No", null).show();

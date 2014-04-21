@@ -3,9 +3,9 @@ package com.cmu.majoritywin;
 import java.io.IOException;
 
 import org.apache.http.client.ClientProtocolException;
-
 import com.cmu.http.HttpRequestUtils;
-
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 import android.support.v7.app.ActionBarActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -57,6 +57,7 @@ public class JoinRoomActivity extends ActionBarActivity implements
 					intent.setClassName("com.cmu.majoritywin",
 							"com.cmu.majoritywin.EnterRoomActivity");
 					intent.putExtra("com.cmu.passdata.username", username);
+					intent.putExtra("com.cmu.passdata.roomID", roomID);
 					intent.putExtra("com.cmu.passdata.isCreater", false);
 					startActivity(intent);
 				} else {
@@ -74,9 +75,8 @@ public class JoinRoomActivity extends ActionBarActivity implements
 			}
 			break;
 		case R.id.Button_Scan_QRCode:
-			Intent intent = new Intent("com.google.zxing.client.android.SCAN");
-			intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
-			startActivityForResult(intent, 0);
+			IntentIntegrator integrator = new IntentIntegrator(this);
+			integrator.initiateScan();
 			break;
 		default:
 			Log.e(Tag, "Unexpected Error");
@@ -86,14 +86,11 @@ public class JoinRoomActivity extends ActionBarActivity implements
 	}
 
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		if (requestCode == 0) {
-			if (resultCode == RESULT_OK) {
-				String contents = intent.getStringExtra("SCAN_RESULT");
-				String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-				edittext_roomNumber.setText(contents);
-			} else if (resultCode == RESULT_CANCELED) {
-				// Handle cancel
-			}
+		IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+		if (scanResult != null) {
+			String contents = scanResult.getContents();
+			//String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
+			edittext_roomNumber.setText(contents);
 		}
 	}
 

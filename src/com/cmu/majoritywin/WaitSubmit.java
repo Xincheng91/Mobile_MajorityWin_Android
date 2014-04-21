@@ -79,9 +79,10 @@ public class WaitSubmit extends ActionBarActivity {
 						}else{
 							Toast.makeText(getApplicationContext(), "You are the leader now", Toast.LENGTH_SHORT).show();
 							Intent intent = new Intent();
-							intent.setClassName("com.cmu.majoritywin", "com.cmu.majoritywin.SubmitVote");
+							intent.setClassName("com.cmu.majoritywin", "com.cmu.majoritywin.SubmitQuestion");
 							intent.putExtra("com.cmu.passdata.roomID", roomID);
-							intent.putExtra("com.cmu.passdata.questions", questions);
+							intent.putExtra("com.cmu.passdata.username", username);
+							intent.putExtra("com.cmu.passdata.leader", username);
 							startActivity(intent);
 							finish();
 						}

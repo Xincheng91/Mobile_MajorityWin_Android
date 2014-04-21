@@ -27,12 +27,12 @@ import android.util.Log;
 public class HttpRequestUtils {
 
 	private static String Tag = "HttpRequestUtils";
-	private static String ServerIP = "http://128.237.200.74:8080/MajorityWin/";
+	private static String ServerIP = "http://128.237.205.231:8080/MajorityWin/";
 
 	public static String createRoom(String username) throws ClientProtocolException,
 			IOException {
 		HttpClient httpClient = new DefaultHttpClient();
-		HttpGet httpGet = new HttpGet(ServerIP + "CreateRoom?username=" + username);
+		HttpGet httpGet = new HttpGet(ServerIP + "CreateRoom?username=" + username + "&roomsize=5");
 		HttpResponse response = httpClient.execute(httpGet);
 		int code = response.getStatusLine().getStatusCode();
 		if (code == 200) {
@@ -110,7 +110,7 @@ public class HttpRequestUtils {
 	
 	public static void submitQuestion(String json, String roomID) throws IOException {
 		HttpClient httpClient = new DefaultHttpClient();
-		HttpPost httpPost = new HttpPost(ServerIP+"SubmitQuestions");
+		HttpPost httpPost = new HttpPost(ServerIP+"SubmitQuestion");
 		List<NameValuePair> parameters = new ArrayList<NameValuePair>();
 		parameters.add(new BasicNameValuePair("roomID", roomID));
 		parameters.add(new BasicNameValuePair("questions", json));

@@ -32,7 +32,7 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 	private Handler handlerForCheckingLeader;
 	private int numberOfParticipants = 0;
 	private String roomID;
-	private ProgressDialog pDialog;
+	//private ProgressDialog pDialog;
 	private String username;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +67,7 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 		handlerForCheckingLeader = new Handler(){
 			public void handleMessage(Message msg){
 				String leader = (String) msg.obj;
-				pDialog.dismiss();
+				//pDialog.dismiss();
 				if(leader.equals(username)){
 					Intent intent = new Intent();
 					intent.setClassName("com.cmu.majoritywin", "com.cmu.majoritywin.SubmitQuestion");
@@ -113,7 +113,7 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 							handler.sendMessage(msg);
 						}
 					}else{
-						Toast.makeText(getApplicationContext(), "Unexpected Error",
+						Toast.makeText(getApplicationContext(), "Wrong status returned by server",
 								Toast.LENGTH_SHORT).show();
 						finish();
 					}
@@ -123,7 +123,7 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 							Toast.LENGTH_SHORT).show();
 				} catch (InterruptedException e) {
 					Log.e(Tag, e.toString());
-					Toast.makeText(getApplicationContext(), "Problems with network",
+					Toast.makeText(getApplicationContext(), "Problems with thread",
 							Toast.LENGTH_SHORT).show();
 				} catch (JSONException e) {
 					Log.e(Tag, e.toString());
