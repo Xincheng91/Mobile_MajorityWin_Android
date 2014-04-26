@@ -1,12 +1,15 @@
 package com.cmu.majoritywin;
 
 import java.io.IOException;
+
 import org.apache.http.client.ClientProtocolException;
+
 import com.cmu.http.HttpRequestUtils;
 import com.cmu.view.Contents;
 import com.cmu.view.QRCodeEncoder;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
+
 import android.support.v7.app.ActionBarActivity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -33,6 +36,7 @@ public class CreateRoomActivity extends ActionBarActivity implements
 	private String username;
 	private ImageView imageView;
 	private Handler toastHandler;
+	private Handler clickHandler;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +71,17 @@ public class CreateRoomActivity extends ActionBarActivity implements
 							"Problems with QR Code", Toast.LENGTH_SHORT).show();
 				}
 				super.handleMessage(msg);
+			}
+		};
+		clickHandler = new Handler(){
+			public void handleMessage(Message msg) {
+				Intent intent = new Intent();
+				intent.setClassName("com.cmu.majoritywin",
+						"com.cmu.majoritywin.EnterRoomActivity");
+				intent.putExtra("com.cmu.passdata.roomID", roomID);
+				intent.putExtra("com.cmu.passdata.username", username);
+				intent.putExtra("com.cmu.passdata.isCreater", true);
+				startActivity(intent);
 			}
 		};
 		new t_getRoomNumber().start();
@@ -122,20 +137,30 @@ public class CreateRoomActivity extends ActionBarActivity implements
 			if (roomID == null || roomID.equals("")) {
 				break;
 			}
-			Intent intent = new Intent();
-			intent.setClassName("com.cmu.majoritywin",
-					"com.cmu.majoritywin.EnterRoomActivity");
-			intent.putExtra("com.cmu.passdata.roomID", roomID);
-			intent.putExtra("com.cmu.passdata.username", username);
-			intent.putExtra("com.cmu.passdata.isCreater", true);
-			startActivity(intent);
+			new networkThread().start();
 			break;
 		default:
 			Log.e(Tag, "Unexpected Error");
-			Toast.makeText(getApplicationContext(), "Unexpected Error",
-					Toast.LENGTH_SHORT).show();
 			break;
 		}
 	}
 
+	public class networkThread extends Thread{
+		public void run(){
+			try {
+				boolean result = HttpRequestUtils.joinRoom(roomID, username);
+				Message msg = new Message();
+				msg.obj = result;
+				clickHandler.sendMessage(msg);
+			} catch (ClientProtocolException e) {
+				Log.e(Tag, e.toString());
+				toastHandler.sendEmptyMessage(0);
+				return;
+			} catch (IOException e) {
+				Log.e(Tag, e.toString());
+				toastHandler.sendEmptyMessage(0);
+				return;
+			}
+		}
+	}
 }

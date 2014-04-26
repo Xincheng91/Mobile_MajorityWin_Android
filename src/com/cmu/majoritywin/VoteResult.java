@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -20,6 +19,7 @@ public class VoteResult extends ActionBarActivity implements OnClickListener{
 	private String result;
 	private String majority;
 	private String username;
+	private boolean nextRoundLeader;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -32,7 +32,9 @@ public class VoteResult extends ActionBarActivity implements OnClickListener{
 		roomID = getIntent().getExtras().getString("com.cmu.passdata.roomID");
 		result = getIntent().getExtras().getString("com.cmu.passdata.result");
 		username = getIntent().getExtras().getString("com.cmu.passdata.username");
-		majority = getIntent().getExtras().getString("com.cmu.passdata.numOfMajority") + "/5";
+		nextRoundLeader = getIntent().getExtras().getBoolean("com.cmu.passdata.nextRoundLeader");
+		int roomSize = getIntent().getExtras().getInt("com.cmu.passdata.roomSize");
+		majority = getIntent().getExtras().getString("com.cmu.passdata.numOfMajority") + "/" + roomSize;
 		textView_result.setText(result + " - " + majority);
 	}
 	
@@ -40,21 +42,31 @@ public class VoteResult extends ActionBarActivity implements OnClickListener{
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.Button_Next_Round:
-			Intent intent = new Intent();
-			intent.setClassName("com.cmu.majoritywin",
-					"com.cmu.majoritywin.EnterRoomActivity");
-			intent.putExtra("com.cmu.passdata.roomID", roomID);
-			intent.putExtra("com.cmu.passdata.username", username);
-			intent.putExtra("com.cmu.passdata.isCreater", true);
-			startActivity(intent);
-			finish();
+			if(nextRoundLeader){
+				Intent intent = new Intent();
+				intent.setClassName("com.cmu.majoritywin",
+						"com.cmu.majoritywin.EnterRoomActivity");
+				intent.putExtra("com.cmu.passdata.roomID", roomID);
+				intent.putExtra("com.cmu.passdata.username", username);
+				intent.putExtra("com.cmu.passdata.isCreater", true);
+				startActivity(intent);
+				finish();
+			}else{
+				Intent intent = new Intent();
+				intent.setClassName("com.cmu.majoritywin",
+						"com.cmu.majoritywin.EnterRoomActivity");
+				intent.putExtra("com.cmu.passdata.roomID", roomID);
+				intent.putExtra("com.cmu.passdata.username", username);
+				intent.putExtra("com.cmu.passdata.isCreater", false);
+				startActivity(intent);
+				finish();
+			}
 			break;
 		case R.id.Button_Exit:
 			finish();
 			break;
 		default:
 			Log.e(TAG, "Unexpected Error");
-			Toast.makeText(getApplicationContext(), "Unexpected Error", Toast.LENGTH_SHORT).show();
 			break;
 		}
 	}

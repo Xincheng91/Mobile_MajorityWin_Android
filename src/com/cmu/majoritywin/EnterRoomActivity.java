@@ -55,7 +55,7 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 			public void handleMessage(Message msg) {
 				String[] participants = (String[]) msg.obj;
 				int number = participants.length;
-				textview_participants_number.setText(number + "/5");
+				textview_participants_number.setText("Participants:" + number);
 				edittext_participants.setText("");
 				for(String p: participants){
 					edittext_participants.append(p+"\n");
@@ -130,6 +130,7 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 						Message msg = new Message();
 						msg.obj = leader;
 						handlerForCheckingLeader.sendMessage(msg);
+						Log.i("Leader", leader);
 						flag = false;
 					}else if(status == 0){
 						String[] arrayOfParticipants = participants.split(",");

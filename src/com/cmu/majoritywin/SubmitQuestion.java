@@ -1,19 +1,22 @@
 package com.cmu.majoritywin;
 
 import java.io.IOException;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import com.cmu.http.HttpRequestUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,9 +27,6 @@ public class SubmitQuestion extends ActionBarActivity implements
 		OnClickListener {
 
 	private static String TAG = "SubmitQuestion";
-	private EditText editText_option1;
-	private EditText editText_option2;
-	private EditText editText_option3;
 	private EditText editText_topic;
 	private Button button_submit_question;
 	private Button button_giveup;
@@ -37,14 +37,14 @@ public class SubmitQuestion extends ActionBarActivity implements
 	private String username;
 	private boolean startVoteFlag;
 	private Handler toastHandler;
+	private LinearLayout mContainerView;
+	private Button mAddButton;
+	private boolean flag = true;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_submit_question);
-		editText_option1 = (EditText) this.findViewById(R.id.EditText_Option1);
-		editText_option2 = (EditText) this.findViewById(R.id.EditText_Option2);
-		editText_option3 = (EditText) this.findViewById(R.id.EditText_Option3);
 		editText_topic = (EditText) this.findViewById(R.id.Edit_Topic);
 		button_submit_question = (Button) this
 				.findViewById(R.id.Button_Submit_Question);
@@ -54,6 +54,13 @@ public class SubmitQuestion extends ActionBarActivity implements
 		button_giveup.setOnClickListener(this);
 		roomID = getIntent().getExtras().getString("com.cmu.passdata.roomID");
 		username = getIntent().getExtras().getString("com.cmu.passdata.username");
+		mContainerView = (LinearLayout) findViewById(R.id.parentView);
+	    mAddButton = (Button) findViewById(R.id.btnAddNewItem);
+	    mAddButton.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				onAddNewClicked(v);
+			}
+		});
 		handler = new Handler() {
 			public void handleMessage(Message msg) {
 				TimerCounter++;
@@ -64,7 +71,6 @@ public class SubmitQuestion extends ActionBarActivity implements
 				}
 				super.handleMessage(msg);
 			}
-
 		};
 		new TimerThread().start();
 		toastHandler = new Handler() {
@@ -89,6 +95,34 @@ public class SubmitQuestion extends ActionBarActivity implements
 		};
 	}
 
+	public void onAddNewClicked(View v) {
+	    inflateEditRow(null);
+	}
+
+	public void onDeleteClicked(View v) {
+	    mContainerView.removeView((View) v.getParent());
+	}
+	
+	@SuppressLint("NewApi")
+	private void inflateEditRow(String name) {
+	    LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+	    final View rowView = inflater.inflate(R.layout.option_row, null);
+	    final Button deleteButton = (Button)rowView
+	            .findViewById(R.id.buttonDelete);
+	    final EditText editText = (EditText) rowView
+	            .findViewById(R.id.editText);
+	    
+	    if (name != null && !name.isEmpty()) {
+	        editText.setText(name);
+	    }
+	    deleteButton.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				onDeleteClicked(v);
+			}
+		});
+	    mContainerView.addView(rowView, mContainerView.getChildCount() - 1);
+	}
+	
 	private class GiveUpThread extends Thread{
 		public void run(){
 			try {
@@ -100,6 +134,7 @@ public class SubmitQuestion extends ActionBarActivity implements
 					intent.putExtra("com.cmu.passdata.username", username);
 					startActivity(intent);
 					finish();
+					flag = false;
 				}else{
 					Intent intent = new Intent();
 					intent.setClassName("com.cmu.majoritywin", "com.cmu.majoritywin.WaitSubmit");
@@ -108,6 +143,7 @@ public class SubmitQuestion extends ActionBarActivity implements
 					intent.putExtra("com.cmu.passdata.username", username);
 					startActivity(intent);
 					finish();
+					flag = false;
 				}
 			} catch (IOException e) {
 				Log.e(TAG, e.toString());
@@ -119,7 +155,7 @@ public class SubmitQuestion extends ActionBarActivity implements
 	public class TimerThread extends Thread {
 		int count = 0;
 		public void run() {
-			while (true) {
+			while (flag) {
 				try {
 					if(count<=125){
 						sleep(1000);
@@ -139,14 +175,14 @@ public class SubmitQuestion extends ActionBarActivity implements
 		public void run(){
 			JSONObject jsonObject = new JSONObject();
 			try {
+				int count = mContainerView.getChildCount();
 				jsonObject.accumulate("topic", editText_topic.getText()
 						.toString());
-				jsonObject.accumulate("option1", editText_option1.getText()
-						.toString());
-				jsonObject.accumulate("option2", editText_option2.getText()
-						.toString());
-				jsonObject.accumulate("option3", editText_option3.getText()
-						.toString());
+				for(int i = 0; i < count - 1; i++){
+					final LinearLayout child = (LinearLayout) mContainerView.getChildAt(i);
+				    EditText edittext = (EditText) child.getChildAt(1);
+			        jsonObject.accumulate("option" + i, edittext.getText().toString());
+				}
 			} catch (JSONException e) {
 				Log.e(TAG, e.toString());
 				toastHandler.sendEmptyMessage(1);
@@ -160,8 +196,10 @@ public class SubmitQuestion extends ActionBarActivity implements
 				intent.putExtra("com.cmu.passdata.roomID", roomID);
 				intent.putExtra("com.cmu.passdata.questions", json);
 				intent.putExtra("com.cmu.passdata.username", username);
+				intent.putExtra("com.cmu.passdata.nextRoundLeader", true);
 				startActivity(intent);
 				finish();
+				flag = false;
 			} catch (IOException e) {
 				Log.e(TAG, e.toString());
 				toastHandler.sendEmptyMessage(0);

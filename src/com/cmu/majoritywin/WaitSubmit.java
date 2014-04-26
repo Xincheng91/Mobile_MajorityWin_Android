@@ -79,8 +79,9 @@ public class WaitSubmit extends ActionBarActivity {
 	}
 	
 	public class checkSubmitStatusThread extends Thread{
+		boolean flag = true;
 		public void run(){
-			while(true){
+			while(flag){
 				String json;
 				try {
 					sleep(500);
@@ -94,15 +95,12 @@ public class WaitSubmit extends ActionBarActivity {
 						intent.putExtra("com.cmu.passdata.roomID", roomID);
 						intent.putExtra("com.cmu.passdata.questions", questions);
 						intent.putExtra("com.cmu.passdata.username", username);
+						intent.putExtra("com.cmu.passdata.nextRoundLeader", false);
 						startActivity(intent);
 						finish();
+						flag = false;
 					}else{
-						if(!newLeader.equals(leader)){
-							toastHandler.sendEmptyMessage(1);
-							Message msg = new Message();
-							msg.obj = newLeader;
-							handler.sendMessage(msg);
-						}else{
+						if(newLeader.equals(username)){
 							toastHandler.sendEmptyMessage(0);
 							Intent intent = new Intent();
 							intent.setClassName("com.cmu.majoritywin", "com.cmu.majoritywin.SubmitQuestion");
@@ -111,6 +109,12 @@ public class WaitSubmit extends ActionBarActivity {
 							intent.putExtra("com.cmu.passdata.leader", username);
 							startActivity(intent);
 							finish();
+							flag = false;
+						}else if(!newLeader.equals(leader)){
+							toastHandler.sendEmptyMessage(1);
+							Message msg = new Message();
+							msg.obj = newLeader;
+							handler.sendMessage(msg);
 						}
 					}
 				} catch (IOException e) {

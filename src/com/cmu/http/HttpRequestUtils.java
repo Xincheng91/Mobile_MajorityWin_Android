@@ -27,12 +27,12 @@ import android.util.Log;
 public class HttpRequestUtils {
 
 	private static String Tag = "HttpRequestUtils";
-	private static String ServerIP = "http://128.237.202.252:8080/MajorityWin/";
+	private static String ServerIP = "http://128.237.196.157:8080/MajorityWin/";
 
 	public static String createRoom(String username) throws ClientProtocolException,
 			IOException {
 		HttpClient httpClient = new DefaultHttpClient();
-		HttpGet httpGet = new HttpGet(ServerIP + "CreateRoom?username=" + username + "&roomsize=5");
+		HttpGet httpGet = new HttpGet(ServerIP + "CreateRoom?username=" + username + "&roomsize=10");
 		HttpResponse response = httpClient.execute(httpGet);
 		int code = response.getStatusLine().getStatusCode();
 		if (code == 200) {
@@ -150,7 +150,7 @@ public class HttpRequestUtils {
 	public static String checkSubmitQuestionsStatus(String roomID) throws IOException {
 		HttpClient httpClient = new DefaultHttpClient();
 		String param = URLEncoder.encode(roomID);
-		//checkSubmitQuestionsStatus reture jsonString of jsonObject: OK: boolean, leader: String, questions: String
+		//checkSubmitQuestionsStatus return jsonString of jsonObject: OK: boolean, leader: String, questions: String
 		HttpGet httpGet = new HttpGet(ServerIP + "CheckQuestionStatus?roomID=" + param);
 		HttpResponse response = httpClient.execute(httpGet);
 		int code = response.getStatusLine().getStatusCode();
@@ -171,7 +171,7 @@ public class HttpRequestUtils {
 	public static String checkSubmitVoteStatus(String roomID) throws IOException {
 		HttpClient httpClient = new DefaultHttpClient();
 		String param = URLEncoder.encode(roomID);
-		//checkSubmitVoteStatus return jsonString of jsonObject: numOfFinished int, numOfMajority int, int status, result String;
+		//checkSubmitVoteStatus return jsonString of jsonObject: roomSize int, numOfFinished int, numOfMajority int, int status, result String;
 		HttpGet httpGet = new HttpGet(ServerIP + "CheckSubmitStatus?roomID=" + param);
 		HttpResponse response = httpClient.execute(httpGet);
 		int code = response.getStatusLine().getStatusCode();
@@ -211,6 +211,50 @@ public class HttpRequestUtils {
 		}
 	}
 
+	public static boolean register(String username, String password) throws IOException {
+		HttpClient httpClient = new DefaultHttpClient();
+		String param = URLEncoder.encode(username);
+		String param2 = URLEncoder.encode(password);
+		//checkSubmitVoteStatus return jsonString of jsonObject: numOfFinished int, numOfMajority int, int status, result String;
+		HttpGet httpGet = new HttpGet(ServerIP + "Register?username=" + param +"&password=" + param2);
+		HttpResponse response = httpClient.execute(httpGet);
+		int code = response.getStatusLine().getStatusCode();
+		if (code == 200) {
+			InputStream is = response.getEntity().getContent();
+			String result = convertStreamToString(is);
+			if(result.equals("")){
+				return false;
+			}else{
+				return true;
+			}
+		} else {
+			Log.e(Tag, "Code:" + code);
+			throw new IllegalStateException("Network Failure");
+		}
+	}
+	
+	public static boolean login(String username, String password) throws IOException {
+		HttpClient httpClient = new DefaultHttpClient();
+		String param = URLEncoder.encode(username);
+		String param2 = URLEncoder.encode(password);
+		//checkSubmitVoteStatus return jsonString of jsonObject: numOfFinished int, numOfMajority int, int status, result String;
+		HttpGet httpGet = new HttpGet(ServerIP + "Login?username=" + param +"&password=" + param2);
+		HttpResponse response = httpClient.execute(httpGet);
+		int code = response.getStatusLine().getStatusCode();
+		if (code == 200) {
+			InputStream is = response.getEntity().getContent();
+			String result = convertStreamToString(is);
+			if(result.equals("")){
+				return false;
+			}else{
+				return true;
+			}
+		} else {
+			Log.e(Tag, "Code:" + code);
+			throw new IllegalStateException("Network Failure");
+		}
+	}
+	
 	private static String convertStreamToString(InputStream is) {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		StringBuilder sb = new StringBuilder();

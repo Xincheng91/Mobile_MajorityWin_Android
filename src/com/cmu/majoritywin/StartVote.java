@@ -1,15 +1,10 @@
 package com.cmu.majoritywin;
 
 import java.io.IOException;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import com.cmu.http.HttpRequestUtils;
-
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -17,24 +12,17 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.os.Build;
 
 public class StartVote extends ActionBarActivity implements OnClickListener{
 
 	private static String TAG = "StartVote";
-	private RadioButton option1;
-	private RadioButton option2;
-	private RadioButton option3;
 	private TextView textView_finished;
 	private TextView textView_majority_agreed;
 	private TextView textView_topic;
@@ -46,6 +34,8 @@ public class StartVote extends ActionBarActivity implements OnClickListener{
 	private ProgressDialog pDialog;
 	private String username;
 	private Handler toastHandler;
+	private boolean nextRoundLeader;
+	private RadioGroup radioGroup;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,36 +45,39 @@ public class StartVote extends ActionBarActivity implements OnClickListener{
 		button_submit = (Button) this.findViewById(R.id.Button_Submit);
 		button_cancel.setOnClickListener(this);
 		button_submit.setOnClickListener(this);
-		option1 = (RadioButton) this.findViewById(R.id.radioButton1);
-		option2 = (RadioButton) this.findViewById(R.id.radioButton2);
-		option3 = (RadioButton) this.findViewById(R.id.radioButton3);
 		textView_finished = (TextView) this.findViewById(R.id.TextView_Finished);
 		textView_majority_agreed = (TextView) this.findViewById(R.id.TextView_Majority_Agreed);
 		textView_topic = (TextView) this.findViewById(R.id.Text_Topic);
 		jsonString = getIntent().getExtras().getString("com.cmu.passdata.questions");
 		roomID = getIntent().getExtras().getString("com.cmu.passdata.roomID");
 		username = getIntent().getExtras().getString("com.cmu.passdata.username");
+		nextRoundLeader = getIntent().getExtras().getBoolean("com.cmu.passdata.nextRoundLeader");
+		radioGroup = (RadioGroup) findViewById(R.id.parentLayout);
+		
 		JSONObject jsObject = null;
 		try {
 			jsObject = new JSONObject(jsonString);
 			String topic  = (String) jsObject.get("topic");
-			String question1  = (String) jsObject.get("option1");
-			String question2  = (String) jsObject.get("option2");
-			String question3  = (String) jsObject.get("option3");
 			textView_topic.setText(topic);
-			option1.setText(question1);
-			option2.setText(question2);
-			option3.setText(question3);
+			for(int i = 0; i < jsObject.length() - 1; i++){
+				String option = "option" + i;
+				String question = jsObject.getString(option);
+				RadioButton rb = new RadioButton(this);
+				rb.setText(question);
+				radioGroup.addView(rb);
+			}
 		} catch (JSONException e) {
 			Log.e(TAG, e.toString());
 			Toast.makeText(this, "Unexpected Json Error", Toast.LENGTH_SHORT).show();
 		}
 		handler = new Handler(){
 			public void handleMessage(Message msg) {
-				int num1 = msg.arg1;
-				int num2 = msg.arg2;
-				textView_finished.setText(num1 + "/5");
-				textView_majority_agreed.setText(num2 + "/5");
+				Bundle bundle = msg.getData();
+				int finished = bundle.getInt("numOfFinished");
+				int majority = bundle.getInt("numOfMajority");
+				int roomSize = bundle.getInt("roomSize");
+				textView_finished.setText(finished + "/" + roomSize);
+				textView_majority_agreed.setText(majority + "/" + roomSize);
 				super.handleMessage(msg);
 			}
 		};
@@ -124,6 +117,7 @@ public class StartVote extends ActionBarActivity implements OnClickListener{
 					sleep(500);
 					jsonStatus = HttpRequestUtils.checkSubmitVoteStatus(roomID);
 					JSONObject jsObject = new JSONObject(jsonStatus);
+					int roomSize = jsObject.getInt("roomSize");
 					int numOfFinished = jsObject.getInt("numOfFinished");
 					int numOfMajority = jsObject.getInt("numOfMajority");
 					Log.i(TAG, "numOfMajority: " + numOfMajority);
@@ -139,13 +133,18 @@ public class StartVote extends ActionBarActivity implements OnClickListener{
 						intent.putExtra("com.cmu.passdata.result", voteResult);
 						intent.putExtra("com.cmu.passdata.numOfMajority", numOfMajority+"");
 						intent.putExtra("com.cmu.passdata.username", username);
+						intent.putExtra("com.cmu.passdata.nextRoundLeader", nextRoundLeader);
+						intent.putExtra("com.cmu.passdata.roomSize", roomSize);
 						startActivity(intent);
 						finish();
 						flag = false;
 					}else{
 						Message msg = new Message();
-						msg.arg1 = numOfFinished;
-						msg.arg2 = numOfMajority;
+						Bundle bundle = new Bundle();
+						bundle.putInt("numOfFinished", numOfFinished);
+						bundle.putInt("roomSize", roomSize);
+						bundle.putInt("numOfMajority", numOfMajority);
+						msg.setData(bundle);
 						handler.sendMessage(msg);
 					}
 				} catch (IOException e) {
@@ -164,14 +163,8 @@ public class StartVote extends ActionBarActivity implements OnClickListener{
 	
 	public class submitVoteThread extends Thread{
 		public void run(){
-			int option = 0;
-			if(option1.isChecked()){
-				option = 0;	
-			}else if(option2.isChecked()){
-				option = 1;
-			}else if(option3.isChecked()){
-				option = 2;
-			}
+			int option = radioGroup.getCheckedRadioButtonId() - 1;
+			Log.i("TAG", option + "");
 			try {
 				HttpRequestUtils.submitVote(roomID, username, option);
 				toastHandler.sendEmptyMessage(3);

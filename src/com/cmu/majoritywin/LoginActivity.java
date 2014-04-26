@@ -51,6 +51,8 @@ public class LoginActivity extends Activity {
 	private View mLoginStatusView;
 	private TextView mLoginStatusMessageView;
 	private Button button_exit;
+	private Button button_register;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -90,6 +92,15 @@ public class LoginActivity extends Activity {
 					@Override
 					public void onClick(View view) {
 						attemptLogin();
+					}
+				});
+		findViewById(R.id.register_button).setOnClickListener(
+				new OnClickListener() {
+					public void onClick(View v) {
+						Intent registerIntent = new Intent();
+						registerIntent.setClassName("com.cmu.majoritywin",
+								"com.cmu.majoritywin.RegisterActivity");
+						startActivity(registerIntent);
 					}
 				});
 	}
@@ -182,6 +193,16 @@ public class LoginActivity extends Activity {
 									: View.VISIBLE);
 						}
 					});
+			button_exit.setVisibility(View.VISIBLE);
+			button_exit.animate().setDuration(shortAnimTime)
+					.alpha(show ? 0 : 1)
+					.setListener(new AnimatorListenerAdapter() {
+						@Override
+						public void onAnimationEnd(Animator animation) {
+							button_exit.setVisibility(show ? View.GONE
+									: View.VISIBLE);
+						}
+					});
 		} else {
 			// The ViewPropertyAnimator APIs are not available, so simply show
 			// and hide the relevant UI components.
@@ -225,7 +246,8 @@ public class LoginActivity extends Activity {
 
 			if (success) {
 				Intent intent = new Intent();
-				intent.setClassName("com.cmu.majoritywin", "com.cmu.majoritywin.MainActivity");
+				intent.setClassName("com.cmu.majoritywin",
+						"com.cmu.majoritywin.MainActivity");
 				intent.putExtra("com.cmu.passdata.username", mEmail);
 				startActivity(intent);
 				finish();
