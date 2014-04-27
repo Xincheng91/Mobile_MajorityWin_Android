@@ -1,5 +1,9 @@
 package com.cmu.majoritywin;
 
+import java.io.IOException;
+
+import com.cmu.http.HttpRequestUtils;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -9,6 +13,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
@@ -219,8 +224,19 @@ public class LoginActivity extends Activity {
 		@Override
 		protected Boolean doInBackground(Void... params) {
 			// TODO: attempt authentication against a network service.
-
+			
+			boolean flag = false;
 			try {
+				flag = HttpRequestUtils.login(mEmailView.getText().toString(), mPasswordView.getText().toString());
+			} catch (IOException e) {
+				Log.e("LoginActivity", e.toString());
+			}
+			if(flag){
+				return true;
+			}else{
+				return false;
+			}
+			/*try {
 				// Simulate network access.
 				Thread.sleep(2000);
 			} catch (InterruptedException e) {
@@ -233,10 +249,10 @@ public class LoginActivity extends Activity {
 					// Account exists, return true if the password matches.
 					return pieces[1].equals(mPassword);
 				}
-			}
+			}*/
 
 			// TODO: register the new account here.
-			return true;
+			//return true;
 		}
 
 		@Override

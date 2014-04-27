@@ -120,14 +120,17 @@ public class WaitSubmit extends ActionBarActivity {
 				} catch (IOException e) {
 					Log.e(TAG, e.toString());
 					toastHandler.sendEmptyMessage(2);
+					flag = false;
 					finish();
 				} catch (InterruptedException e) {
 					Log.e(TAG, e.toString());
 					toastHandler.sendEmptyMessage(2);
+					flag = false;
 					finish();
 				} catch (JSONException e) {
 					Log.e(TAG, e.toString());
 					toastHandler.sendEmptyMessage(3);
+					flag = false;
 					finish();
 				}
 			}

@@ -148,12 +148,15 @@ public class StartVote extends ActionBarActivity implements OnClickListener{
 						handler.sendMessage(msg);
 					}
 				} catch (IOException e) {
+					flag = false;
 					Log.e(TAG, e.toString());
 					toastHandler.sendEmptyMessage(0);
 				} catch (JSONException e) {
+					flag = false;
 					Log.e(TAG, "Unexpected JSON Error");
 					toastHandler.sendEmptyMessage(1);
 				} catch (InterruptedException e) {
+					flag = false;
 					Log.e(TAG, e.toString());
 					toastHandler.sendEmptyMessage(2);
 				}
@@ -163,8 +166,9 @@ public class StartVote extends ActionBarActivity implements OnClickListener{
 	
 	public class submitVoteThread extends Thread{
 		public void run(){
-			int option = radioGroup.getCheckedRadioButtonId() - 1;
-			Log.i("TAG", option + "");
+			int option = radioGroup.indexOfChild(findViewById(radioGroup.getCheckedRadioButtonId()));
+			//Log.i(TAG, radioGroup.);
+			Log.i(TAG, option + "");
 			try {
 				HttpRequestUtils.submitVote(roomID, username, option);
 				toastHandler.sendEmptyMessage(3);

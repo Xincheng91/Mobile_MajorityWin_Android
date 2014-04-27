@@ -1,5 +1,8 @@
 package com.cmu.majoritywin;
 
+import java.io.IOException;
+
+import com.cmu.http.HttpRequestUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
@@ -8,6 +11,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 
 public class VoteResult extends ActionBarActivity implements OnClickListener{
 
@@ -20,6 +25,7 @@ public class VoteResult extends ActionBarActivity implements OnClickListener{
 	private String majority;
 	private String username;
 	private boolean nextRoundLeader;
+	private Handler handler;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -36,31 +42,36 @@ public class VoteResult extends ActionBarActivity implements OnClickListener{
 		int roomSize = getIntent().getExtras().getInt("com.cmu.passdata.roomSize");
 		majority = getIntent().getExtras().getString("com.cmu.passdata.numOfMajority") + "/" + roomSize;
 		textView_result.setText(result + " - " + majority);
+		handler = new Handler(){
+			public void handleMessage(Message msg) {
+				if(nextRoundLeader){
+					Intent intent = new Intent();
+					intent.setClassName("com.cmu.majoritywin",
+							"com.cmu.majoritywin.EnterRoomActivity");
+					intent.putExtra("com.cmu.passdata.roomID", roomID);
+					intent.putExtra("com.cmu.passdata.username", username);
+					intent.putExtra("com.cmu.passdata.isCreater", true);
+					startActivity(intent);
+					finish();
+				}else{
+					Intent intent = new Intent();
+					intent.setClassName("com.cmu.majoritywin",
+							"com.cmu.majoritywin.EnterRoomActivity");
+					intent.putExtra("com.cmu.passdata.roomID", roomID);
+					intent.putExtra("com.cmu.passdata.username", username);
+					intent.putExtra("com.cmu.passdata.isCreater", false);
+					startActivity(intent);
+					finish();
+				}
+			}
+		};
 	}
 	
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.Button_Next_Round:
-			if(nextRoundLeader){
-				Intent intent = new Intent();
-				intent.setClassName("com.cmu.majoritywin",
-						"com.cmu.majoritywin.EnterRoomActivity");
-				intent.putExtra("com.cmu.passdata.roomID", roomID);
-				intent.putExtra("com.cmu.passdata.username", username);
-				intent.putExtra("com.cmu.passdata.isCreater", true);
-				startActivity(intent);
-				finish();
-			}else{
-				Intent intent = new Intent();
-				intent.setClassName("com.cmu.majoritywin",
-						"com.cmu.majoritywin.EnterRoomActivity");
-				intent.putExtra("com.cmu.passdata.roomID", roomID);
-				intent.putExtra("com.cmu.passdata.username", username);
-				intent.putExtra("com.cmu.passdata.isCreater", false);
-				startActivity(intent);
-				finish();
-			}
+			new nextRoundThread().start();
 			break;
 		case R.id.Button_Exit:
 			finish();
@@ -71,4 +82,17 @@ public class VoteResult extends ActionBarActivity implements OnClickListener{
 		}
 	}
 
+	public class nextRoundThread extends Thread{
+		public void run(){
+			try {
+				boolean result = HttpRequestUtils.startNextRound(roomID,username);
+				Message msg = new Message();
+				msg.obj = result;
+				handler.sendMessage(msg);
+			} catch (IOException e) {
+				Log.e(TAG, e.toString());
+				return;
+			}
+		}
+	}
 }

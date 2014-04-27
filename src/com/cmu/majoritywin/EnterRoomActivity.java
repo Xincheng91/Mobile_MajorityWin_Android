@@ -34,6 +34,7 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 	private String roomID;
 	private String username;
 	private Handler toastHandler;
+	private boolean flag = true;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -75,6 +76,7 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 					intent.putExtra("com.cmu.passdata.roomID", roomID);
 					intent.putExtra("com.cmu.passdata.username", username);
 					startActivity(intent);
+					flag = false;
 					finish();
 				}else{
 					Intent intent = new Intent();
@@ -83,6 +85,7 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 					intent.putExtra("com.cmu.passdata.roomID", roomID);
 					intent.putExtra("com.cmu.passdata.username", username);
 					startActivity(intent);
+					flag = false;
 					finish();
 				}
 				super.handleMessage(msg);
@@ -116,7 +119,7 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 	}
 	
 	public class getInfoThread extends Thread{
-		boolean flag = true;
+		
 		public void run() {
 			while(flag){
 				try {
@@ -144,12 +147,15 @@ public class EnterRoomActivity extends ActionBarActivity implements OnClickListe
 						toastHandler.sendEmptyMessage(3);
 					}
 				}catch (IOException e) {
+					flag = false;
 					Log.e(Tag, e.toString());
 					toastHandler.sendEmptyMessage(0);
 				} catch (InterruptedException e) {
+					flag = false;
 					Log.e(Tag, e.toString());
 					toastHandler.sendEmptyMessage(0);
 				} catch (JSONException e) {
+					flag = false;
 					Log.e(Tag, e.toString());
 					toastHandler.sendEmptyMessage(1);
 				}

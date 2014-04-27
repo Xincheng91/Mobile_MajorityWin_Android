@@ -27,7 +27,7 @@ import android.util.Log;
 public class HttpRequestUtils {
 
 	private static String Tag = "HttpRequestUtils";
-	private static String ServerIP = "http://128.237.196.157:8080/MajorityWin/";
+	private static String ServerIP = "http://128.237.201.73:8080/MajorityWin/";
 
 	public static String createRoom(String username) throws ClientProtocolException,
 			IOException {
@@ -255,6 +255,29 @@ public class HttpRequestUtils {
 		}
 	}
 	
+	public static boolean startNextRound(String roomID, String username) throws IOException {
+		HttpClient httpClient = new DefaultHttpClient();
+		String param1 = URLEncoder.encode(roomID);
+		String param2 = URLEncoder.encode(username);
+		//checkSubmitVoteStatus return jsonString of jsonObject: roomSize int, numOfFinished int, numOfMajority int, int status, result String;
+		HttpGet httpGet = new HttpGet(ServerIP + "StartNewRound?roomID=" + param1 + "&username=" + param2);
+		HttpResponse response = httpClient.execute(httpGet);
+		int code = response.getStatusLine().getStatusCode();
+		if (code == 200) {
+			InputStream is = response.getEntity().getContent();
+			String result = convertStreamToString(is);
+			if(result.equals("")){
+				return false;
+			}else{
+				return true;
+			}
+		} else {
+			Log.e(Tag, "Code:" + code);
+			throw new IllegalStateException("Network Failure");
+		}
+	}
+
+	
 	private static String convertStreamToString(InputStream is) {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		StringBuilder sb = new StringBuilder();
@@ -276,4 +299,5 @@ public class HttpRequestUtils {
 		return sb.toString();
 	}
 
+	
 }
