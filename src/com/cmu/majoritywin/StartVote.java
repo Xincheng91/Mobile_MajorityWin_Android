@@ -1,13 +1,17 @@
 package com.cmu.majoritywin;
 
 import java.io.IOException;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import com.cmu.http.HttpRequestUtils;
+
 import android.support.v7.app.ActionBarActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -64,6 +68,8 @@ public class StartVote extends ActionBarActivity implements OnClickListener{
 				String question = jsObject.getString(option);
 				RadioButton rb = new RadioButton(this);
 				rb.setText(question);
+				rb.setTextSize(20);
+				rb.setTextColor(Color.BLACK);
 				radioGroup.addView(rb);
 			}
 		} catch (JSONException e) {
