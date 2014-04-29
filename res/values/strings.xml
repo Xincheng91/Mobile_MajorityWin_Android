@@ -28,10 +28,11 @@
     <string name="Text_Finished">Finished: 0</string>
     <string name="Text_Majority_Agreed">Majority Agreed: 0</string>
     <string name="title_activity_vote_result">VoteResult</string>
-    <string name="Text_Next_Round">Next_Round</string>
+    <string name="Text_Next_Round">Next Round</string>
     <string name="Text_Giveup">Give up</string>
     <string name="Text_TimeOut">Timer</string>
     <string name="action_register">Register</string>
     <string name="title_activity_register">RegisterActivity</string>
+    <string name="title_activity_launcher">LauncherActivity</string>
 
 </resources>

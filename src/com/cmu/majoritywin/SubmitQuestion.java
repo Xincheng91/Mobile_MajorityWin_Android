@@ -109,7 +109,7 @@ public class SubmitQuestion extends ActionBarActivity implements
 	    final View rowView = inflater.inflate(R.layout.option_row, null);
 	    final Button deleteButton = (Button)rowView
 	            .findViewById(R.id.buttonDelete);
-	    final EditText editText = (EditText) rowView
+	    EditText editText = (EditText) rowView
 	            .findViewById(R.id.editText);
 	    
 	    if (name != null && !name.isEmpty()) {

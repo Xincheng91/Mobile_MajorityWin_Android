@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+     android:background="@drawable/background2"   >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -31,7 +32,8 @@
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="3dp"
                 android:text="@string/Text_Finished"
-                android:textSize="15sp" />
+                android:textSize="15sp"
+        android:textColor="@android:color/black" />
 
             <TextView
                 android:id="@+id/TextView_Majority_Agreed"
@@ -41,7 +43,8 @@
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="10dp"
                 android:text="@string/Text_Majority_Agreed"
-                android:textSize="15sp" />
+                android:textSize="15sp" 
+        android:textColor="@android:color/black"/>
         </LinearLayout>
     </LinearLayout>
 
@@ -52,7 +55,8 @@
         android:layout_gravity="center"
         android:layout_marginTop="30dp"
         android:text="Topic"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:textColor="@android:color/black" />
 
     <RadioGroup
         android:id="@+id/parentLayout"

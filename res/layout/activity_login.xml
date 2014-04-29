@@ -1,6 +1,7 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.cmu.majoritywin.LoginActivity" >
+    tools:context="com.cmu.majoritywin.LoginActivity" 
+    >
 
     <!-- Login progress -->
 
@@ -11,7 +12,8 @@
         android:layout_gravity="center"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:visibility="gone" >
+        android:visibility="gone"
+        >
 
         <ProgressBar
             style="?android:attr/progressBarStyleLarge"
@@ -34,7 +36,9 @@
     <ScrollView
         android:id="@+id/login_form"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:background="@drawable/background2"  
+        >
 
         <LinearLayout
             style="@style/LoginFormContainer"

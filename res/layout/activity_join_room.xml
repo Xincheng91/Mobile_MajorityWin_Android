@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical" 
+     android:background="@drawable/background2"  >
 
     <Button
         android:id="@+id/Button_Cancel"
@@ -22,9 +23,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top"
-            android:layout_marginLeft="27dp"
+            android:layout_marginLeft="8dp"
             android:layout_marginTop="12dp"
-            android:text="@string/Text_Room_Number" />
+            android:text="@string/Text_Room_Number"
+            android:textColor="@android:color/black"
+            android:textSize="15sp" />
 
         <EditText
             android:id="@+id/EditView_RoomNumber"
